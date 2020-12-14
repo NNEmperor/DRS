@@ -4,6 +4,8 @@ from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QImage, QPalette, QBrush, QIcon
 import sys
 
+import StartGame
+
 class MainWindow(QWidget):
     MainWindowHeight = 900
     MainWindowWidth = 900
@@ -43,16 +45,24 @@ class MainWindow(QWidget):
         self.startButton.setCursor(Qt.PointingHandCursor)
         self.startButton.setText("Start Game")
         self.startButton.setGeometry(150, 700, 250, 80)
+        self.startButton.setStyleSheet("background-color :gold;border:  none;font-family: Lucida Handwriting;font-size: 25px;border-radius:35px")
+        self.startButton.clicked.connect(self.closeMainApp_OpenStartApp)
 
         self.exitButton = QtWidgets.QPushButton(self)
         self.exitButton.setCursor(Qt.PointingHandCursor)
         self.exitButton.setText("Quit")
         self.exitButton.setGeometry(500, 700, 250, 80)
+        self.exitButton.setStyleSheet("background-color :gold;border:  none;font-family: Lucida Handwriting;font-size: 25px;border-radius:35px")
 
     def center(self):
         screen = QDesktopWidget().screenGeometry()
         size = self.geometry()
         self.move(int((screen.width() - size.width()) / 2), int((screen.height() - size.height()) / 2))
+
+    def closeMainApp_OpenStartApp(self):
+        self.close()
+        self.Open = StartGame.Window()
+        self.Open.show()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
