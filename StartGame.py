@@ -206,7 +206,7 @@ class Board(QFrame):
                     # call move snake method
             self.move_snake()
             self.is_food_collision()
-            #self.move_food()
+            self.move_food()    #pomeranje hrane
             # call is suicide method
             self.is_suicide()
             # update the window
@@ -276,12 +276,6 @@ class Board(QFrame):
             self.update()
         """
 
-        #POZIVACE DROP FOOD NAKON ODREDJENOG PERIODA
-        if event.timerId() == self.timer.timerId():
-            self.drop_food()
-            self.update()
-            # method to check if snake collides itself
-
     def is_suicide(self):
         # traversing the snake
         for i in range(1, len(self.snake)):
@@ -332,9 +326,24 @@ class Board(QFrame):
                 # append food location
         self.food.append([x, y])
 
+
+    #pomeranje hrane
+    def move_food(self):
+        #for petlja kad bi bilo vise hrane u nizu--treba dodati u food
+        for i in range(len(self.food)):
+            if (random.randint(0,4) == 0):
+                if (random.choice([True, False])):
+                    potencijalno = (self.food[i][1] + random.choice([-1, 1]))% self.HEIGHTINBLOCKS
+                    if [self.food[i][0], potencijalno] not in self.snake:
+                        self.food[i][1] = potencijalno
+                else:
+                    potencijalno = (self.food[i][0] + random.choice([-1, 1]))%self.WIDTHINBLOCKS
+                    #if ~self.snake.__contains__([potencijalno, self.food[i][1]]):
+                    if [potencijalno, self.food[i][1]] not in self.snake:
+                        self.food[i][0] = potencijalno
+
+
     # main method
-
-
 if __name__ == '__main__':
     app = QApplication([])
     window = Window()
