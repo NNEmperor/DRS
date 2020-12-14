@@ -181,6 +181,7 @@ class Board(QFrame):
                 if self.direction != 2:
                     # set direction to left
                     self.direction = 1
+                    self.move_snake()
 
             # if right key is pressed
             elif key == Qt.Key_Right:
@@ -188,6 +189,7 @@ class Board(QFrame):
                 if self.direction != 1:
                     # set direction to right
                     self.direction = 2
+                    self.move_snake()
 
             # if down key is pressed
             elif key == Qt.Key_Down:
@@ -195,6 +197,7 @@ class Board(QFrame):
                 if self.direction != 4:
                     # set direction to down
                     self.direction = 3
+                    self.move_snake()
 
             # if up key is pressed
             elif key == Qt.Key_Up:
@@ -202,9 +205,10 @@ class Board(QFrame):
                 if self.direction != 3:
                     # set direction to up
                     self.direction = 4
+                    self.move_snake()
             #-----------------------------
                     # call move snake method
-            self.move_snake()
+
             self.is_food_collision()
             self.move_food()    #pomeranje hrane
             # call is suicide method
