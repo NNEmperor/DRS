@@ -55,9 +55,7 @@ class Board(QFrame):
     # creating signal object
     msg2statusbar = pyqtSignal(str)
 
-    # speed of the snake
-    # timer countdown time
-    SPEED = 220
+    GAME_OVER = False
 
     # block width and height
     WIDTHINBLOCKS = 60
@@ -139,7 +137,8 @@ class Board(QFrame):
         # drawing snake
         for pos in self.snake:
             color = QColor(0x228B22)
-
+            if (self.snake[0][0] == pos[0] and self.snake[0][1] == pos[1]):
+                color = QColor(0,100,0)         #BOJI GLAVU
             self.draw_square(painter, rect.left() + pos[0] * self.square_width(),
                              boardtop + pos[1] * self.square_height(),color)
 
@@ -173,8 +172,7 @@ class Board(QFrame):
 
     def keyPressEvent(self, event):
 
-
-
+        if (self.GAME_OVER == False):
             # getting key pressed
             key = event.key()
             # if left key pressed
@@ -294,8 +292,8 @@ class Board(QFrame):
                 # making background color black
                 self.setStyleSheet("background-color : black;")
                 # stopping the timer
-                self.timer.stop()       #NE KORISTI SE
-
+                #self.timer.stop()       #NE KORISTI SE
+                self.GAME_OVER = True
                 # updating the window
                 self.update()
                 #-----------------ZVUK ZA KRAJ
