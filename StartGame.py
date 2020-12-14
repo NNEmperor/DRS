@@ -299,14 +299,8 @@ class Board(QFrame):
                 # updating the window
                 self.update()
                 #-----------------ZVUK ZA KRAJ
-                #gameOverbrush = QImage("images/game_over.png")
-                #qp.drawImage(80, 150, gameOverbrush
-
-                #pixmap = QPixmap("images/gameOver.png")
-                #lbl = QLabel(self)
-                #lbl.setPixmap(pixmap)
-                #lbl.show()
-
+                filename = 'sounds/mixkit-falling-game-over-1942.wav'
+                winsound.PlaySound(filename, winsound.SND_ASYNC)
                 #------------------------------
                 # method to check if the food cis collied
 
