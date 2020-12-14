@@ -18,7 +18,7 @@ class Window(QMainWindow):
         self.statusbar = self.statusBar()
 
         # adding border to the status bar
-        self.statusbar.setStyleSheet("border : 2px solid black;")
+        self.statusbar.setStyleSheet("border : 2px solid black;color:gold;background-color:#800000;font-weight: 900;font-family: Lucida Handwriting;")
 
         # calling showMessage method when signal received by board
         self.board.msg2statusbar[str].connect(self.statusbar.showMessage)
