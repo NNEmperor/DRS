@@ -332,16 +332,20 @@ class Board(QFrame):
 
 
     #pomeranje hrane
+
     def move_food(self):
+
         #for petlja kad bi bilo vise hrane u nizu--treba dodati u food
         for i in range(len(self.food)):
-            if (random.randint(0,4) == 0):
-                if (random.choice([True, False])):
-                    potencijalno = (self.food[i][1] + random.choice([-1, 1]))% self.HEIGHTINBLOCKS
+            #if (random.randint(0,4) == 0):
+            if (random.choice([True, False])):
+                for j in range(random.randint(1, 3)):
+                    potencijalno = (self.food[i][1] + random.choice([-1, 1])) % self.HEIGHTINBLOCKS
                     if [self.food[i][0], potencijalno] not in self.snake:
                         self.food[i][1] = potencijalno
-                else:
-                    potencijalno = (self.food[i][0] + random.choice([-1, 1]))%self.WIDTHINBLOCKS
+            else:
+                for j in range(random.randint(1, 3)):
+                    potencijalno = (self.food[i][0] + random.choice([-1, 1])) % self.WIDTHINBLOCKS
                     #if ~self.snake.__contains__([potencijalno, self.food[i][1]]):
                     if [potencijalno, self.food[i][1]] not in self.snake:
                         self.food[i][0] = potencijalno
