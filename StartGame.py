@@ -317,18 +317,26 @@ class Board(QFrame):
             if random.choice([True, False]):
                 for j in range(random.randint(1, 3)):
                     potencijalno = (self.food[i][1] + random.choice([-1, 1])) % self.HEIGHTINBLOCKS
-                    for snake in self.snakes:
-                        if [self.food[i][0], potencijalno] not in snake.Position:
-                            if [self.food[i][0], potencijalno] not in self.wall:
-                                self.food[i][1] = potencijalno
+                    na_poziciji = False
+                    for index_snake in range(len(self.snakes)):
+                        if [self.food[i][0], potencijalno] in self.snakes[index_snake].Position:
+                            na_poziciji = True
+                    if not na_poziciji:
+                        if [self.food[i][0], potencijalno] not in self.wall:
+                            self.food[i][1] = potencijalno
             else:
                 for j in range(random.randint(1, 3)):
                     potencijalno = (self.food[i][0] + random.choice([-1, 1])) % self.WIDTHINBLOCKS
                     # if ~self.snake.__contains__([potencijalno, self.food[i][1]]):
-                    for snake in self.snakes:
-                        if [potencijalno, self.food[i][1]] not in snake.Position:
-                            if [potencijalno, self.food[i][1]] not in self.wall:
-                                self.food[i][0] = potencijalno
+                   # for snake in self.snakes:
+                    na_poziciji = False
+                    for index_snake in range(len(self.snakes)):
+                        #if [potencijalno, self.food[i][1]] not in self.snakes[index_snake].Position:
+                        if [potencijalno, self.food[i][1]] in self.snakes[index_snake].Position:
+                            na_poziciji= True
+                    if not na_poziciji:
+                        if [potencijalno, self.food[i][1]] not in self.wall:
+                            self.food[i][0] = potencijalno
 
 
 # main method
