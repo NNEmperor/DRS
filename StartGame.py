@@ -5,6 +5,7 @@ from PyQt5.QtGui import *
 import random
 import sys
 import winsound
+import Snake
 
 
 # creating game window
@@ -35,8 +36,8 @@ class Window(QMainWindow):
         # setting geometry to the window
         self.setGeometry(100, 100, 600, 400)
 
-        # starting the board object
-        self.board.start()
+        # starting the board object // za sada ne trb
+        #self.board.start()
 
         oImage = QImage("images/grass_template2.jpg")  # POZADINA
         sImage = oImage.scaled((QSize(900, 900)))
@@ -69,7 +70,10 @@ class Board(QFrame):
         self.timer = QBasicTimer()
 
         # snake
-        self.snake = [[5, 10], [5, 11]]
+        self.snakeTest = Snake.Snake([[5, 10], [5, 11]], 4, Board.WIDTHINBLOCKS, Board.HEIGHTINBLOCKS)
+        self.snakeTest2 = Snake.Snake([[10,10], [10,11]], 4, Board.WIDTHINBLOCKS, Board.HEIGHTINBLOCKS)
+
+        self.snakes = [self.snakeTest, self.snakeTest2]
 
         # wall
         self.wall = [[0, 0], [0, 1], [0, 2], [0, 3]]
@@ -80,22 +84,8 @@ class Board(QFrame):
                 elif i == Board.WIDTHINBLOCKS - 1 or j == Board.HEIGHTINBLOCKS - 1:
                     self.wall.append([i, j])
 
-        # current head x head
-        self.current_x_head = self.snake[0][0]
-        # current y head
-        self.current_y_head = self.snake[0][1]
-
         # food list
         self.food = []
-
-        # growing is false
-        self.grow_snake = False
-
-        # board list
-        self.board = []
-
-        # direction
-        self.direction = 1
 
         # called drop food method
         self.drop_food()
@@ -117,7 +107,7 @@ class Board(QFrame):
     def start(self):
         # msg for status bar
         # score = current len - 2
-        self.msg2statusbar.emit("SCORE: " + str(len(self.snake) - 2))
+        self.msg2statusbar.emit("SCORE: " + str(len(self.snakeTest.Position) - 2))
 
         # starting timer
         # self.timer.start(Board.SPEED, self)         # DA LI MENJATI???
@@ -139,11 +129,12 @@ class Board(QFrame):
 
         # drawing snake
         color = QColor(0x228B22)
-        for pos in self.snake:
-            if self.snake[0][0] == pos[0] and self.snake[0][1] == pos[1]:
-                color = QColor(0, 100, 0)  # BOJI GLAVU
-            self.draw_square(painter, rect.left() + pos[0] * self.square_width(),
-                             boardtop + pos[1] * self.square_height(), color)
+        for snake in self.snakes:
+            for pos in snake.Position:
+                if snake.Position[0][0] == pos[0] and snake.Position[0][1] == pos[1]:
+                    color = QColor(0, 100, 0)  # BOJI GLAVU
+                self.draw_square(painter, rect.left() + pos[0] * self.square_width(),
+                                 boardtop + pos[1] * self.square_height(), color)
 
             # drawing food
         for pos in self.food:
@@ -180,99 +171,55 @@ class Board(QFrame):
 
     def keyPressEvent(self, event):
 
-        if (self.GAME_OVER == False):
-            # getting key pressed
-            key = event.key()
-            # if left key pressed
-            if key == Qt.Key_Left:
-                # if direction is not right
-                if self.direction != 2:
-                    # set direction to left
-                    self.direction = 1
-                    self.move_snake()
+        for snake in self.snakes:
+            if (self.GAME_OVER == False):
+                # getting key pressed
+                key = event.key()
+                # if left key pressed
+                if key == Qt.Key_Left:
+                    # if direction is not right
+                    if snake.Direction != 2:
+                        # set direction to left
+                        snake.Direction = 1
+                        self.move_food()  # pomeranje hrane
+                        snake.move_snake()
 
-            # if right key is pressed
-            elif key == Qt.Key_Right:
-                # if direction is not left
-                if self.direction != 1:
-                    # set direction to right
-                    self.direction = 2
-                    self.move_snake()
+                # if right key is pressed
+                elif key == Qt.Key_Right:
+                    # if direction is not left
+                    if snake.Direction != 1:
+                        # set direction to right
+                        snake.Direction = 2
+                        self.move_food()  # pomeranje hrane
+                        snake.move_snake()
 
-            # if down key is pressed
-            elif key == Qt.Key_Down:
-                # if direction is not up
-                if self.direction != 4:
-                    # set direction to down
-                    self.direction = 3
-                    self.move_snake()
+                # if down key is pressed
+                elif key == Qt.Key_Down:
+                    # if direction is not up
+                    if snake.Direction != 4:
+                        # set direction to down
+                        snake.Direction = 3
+                        self.move_food()  # pomeranje hrane
+                        snake.move_snake()
 
-            # if up key is pressed
-            elif key == Qt.Key_Up:
-                # if direction is not down
-                if self.direction != 3:
-                    # set direction to up
-                    self.direction = 4
-                    self.move_snake()
-            # -----------------------------
-            # call move snake method
+                # if up key is pressed
+                elif key == Qt.Key_Up:
+                    # if direction is not down
+                    if snake.Direction != 3:
+                        # set direction to up
+                        snake.Direction = 4
+                        self.move_food()  # pomeranje hrane
+                        snake.move_snake()
+                # -----------------------------
+                # call move snake method
 
-            self.is_food_collision()
-            # call is suicide method
-            self.is_suicide()
-            self.is_wall_collision()
-            # update the window
-            self.update()
-            # ************
-
-    # method to move the snake
-    def move_snake(self):
-
-        self.move_food()  # pomeranje hrane
-        # if direction is left change its position
-        if self.direction == 1:
-            self.current_x_head, self.current_y_head = self.current_x_head - 1, self.current_y_head
-
-            # if it goes beyond left wall
-            if self.current_x_head < 0:
-                self.current_x_head = Board.WIDTHINBLOCKS - 1
-
-        # if direction is right change its position
-        if self.direction == 2:
-            self.current_x_head, self.current_y_head = self.current_x_head + 1, self.current_y_head
-            # if it goes beyond right wall
-            if self.current_x_head == Board.WIDTHINBLOCKS:
-                self.current_x_head = 0
-
-        # if direction is down change its position
-        if self.direction == 3:
-            self.current_x_head, self.current_y_head = self.current_x_head, self.current_y_head + 1
-            # if it goes beyond down wall
-            if self.current_y_head == Board.HEIGHTINBLOCKS:
-                self.current_y_head = 0
-
-        # if direction is up change its position
-        if self.direction == 4:
-            self.current_x_head, self.current_y_head = self.current_x_head, self.current_y_head - 1
-            # if it goes beyond up wall
-            if self.current_y_head < 0:
-                self.current_y_head = Board.HEIGHTINBLOCKS
-
-                # changing head position
-        head = [self.current_x_head, self.current_y_head]
-        # inset head in snake list
-        self.snake.insert(0, head)
-
-        # if snake grow is False
-        if not self.grow_snake:
-            # pop the last element
-            self.snake.pop()
-
-        else:
-            # show msg in status bar
-            self.msg2statusbar.emit("SCORE: " + str(len(self.snake) - 2))
-            # make grow_snake to false
-            self.grow_snake = False
+                self.is_food_collision()
+                # call is suicide method
+                self.is_suicide()
+                self.is_wall_collision()
+                # update the window
+                self.update()
+                # ************
 
     # time event method
     def timerEvent(self, event):
@@ -290,10 +237,8 @@ class Board(QFrame):
         """
 
     def is_suicide(self):
-        # traversing the snake
-        for i in range(1, len(self.snake)):
-            # if collision found
-            if self.snake[i] == self.snake[0]:
+        for snake in self.snakes:
+            if snake.suicide():
                 # show game ended msg in status bar
                 self.msg2statusbar.emit(str("Game Ended"))
                 # making background color black
@@ -311,36 +256,38 @@ class Board(QFrame):
 
     def is_wall_collision(self):
         # traversing the snake
-        for i in self.wall:
-            # if collision found
-            if i == self.snake[0]:
-                # show game ended msg in status bar
-                self.msg2statusbar.emit(str("Game Ended"))
-                # making background color black
-                self.setStyleSheet("background-color : black;")
-                # stopping the timer
-                # self.timer.stop()       #NE KORISTI SE
-                self.GAME_OVER = True
-                # updating the window
-                self.update()
-                # -----------------ZVUK ZA KRAJ
-                filename = 'sounds/mixkit-falling-game-over-1942.wav'
-                winsound.PlaySound(filename, winsound.SND_ASYNC)
-                # ------------------------------
-                # method to check if the food cis collied
+        for snake in self.snakes:
+            for i in self.wall:
+                # if collision found
+                if i == snake.Position[0]:
+                    # show game ended msg in status bar
+                    self.msg2statusbar.emit(str("Game Ended"))
+                    # making background color black
+                    self.setStyleSheet("background-color : black;")
+                    # stopping the timer
+                    # self.timer.stop()       #NE KORISTI SE
+                    self.GAME_OVER = True
+                    # updating the window
+                    self.update()
+                    # -----------------ZVUK ZA KRAJ
+                    filename = 'sounds/mixkit-falling-game-over-1942.wav'
+                    winsound.PlaySound(filename, winsound.SND_ASYNC)
+                    # ------------------------------
+                    # method to check if the food cis collied
 
     def is_food_collision(self):
 
-        # traversing the position of the food
-        for pos in self.food:
-            # if food position is similar of snake position
-            if pos == self.snake[0]:
-                # remove the food
-                self.food.remove(pos)
-                # call drop food method
-                self.drop_food()
-                # grow the snake
-                self.grow_snake = True
+        for snake in self.snakes:
+            # traversing the position of the food
+            for pos in self.food:
+                # if food position is similar of snake position
+                if pos == snake.Position[0]:
+                    # remove the food
+                    self.food.remove(pos)
+                    # call drop food method
+                    self.drop_food()
+                    # grow the snake
+                    snake.Grow_snake = True
 
     # method to drop food on screen
     def drop_food(self):
@@ -350,11 +297,12 @@ class Board(QFrame):
 
         # traversing if snake position is not equal to the
         # food position so that food do not drop on snake
-        for pos in self.snake:
-            # if position matches
-            if pos == [x, y]:
-                # call drop food method again
-                self.drop_food()
+        for snake in self.snakes:
+            for pos in snake.Position:
+                # if position matches
+                if pos == [x, y]:
+                    # call drop food method again
+                    self.drop_food()
 
         # append food location
         self.food.append([x, y])
@@ -366,19 +314,21 @@ class Board(QFrame):
         # for petlja kad bi bilo vise hrane u nizu--treba dodati u food
         for i in range(len(self.food)):
             # if (random.randint(0,4) == 0):
-            if (random.choice([True, False])):
+            if random.choice([True, False]):
                 for j in range(random.randint(1, 3)):
                     potencijalno = (self.food[i][1] + random.choice([-1, 1])) % self.HEIGHTINBLOCKS
-                    if [self.food[i][0], potencijalno] not in self.snake:
-                        if [self.food[i][0], potencijalno] not in self.wall:
-                            self.food[i][1] = potencijalno
+                    for snake in self.snakes:
+                        if [self.food[i][0], potencijalno] not in snake.Position:
+                            if [self.food[i][0], potencijalno] not in self.wall:
+                                self.food[i][1] = potencijalno
             else:
                 for j in range(random.randint(1, 3)):
                     potencijalno = (self.food[i][0] + random.choice([-1, 1])) % self.WIDTHINBLOCKS
                     # if ~self.snake.__contains__([potencijalno, self.food[i][1]]):
-                    if [potencijalno, self.food[i][1]] not in self.snake:
-                        if [potencijalno, self.food[i][1]] not in self.wall:
-                            self.food[i][0] = potencijalno
+                    for snake in self.snakes:
+                        if [potencijalno, self.food[i][1]] not in snake.Position:
+                            if [potencijalno, self.food[i][1]] not in self.wall:
+                                self.food[i][0] = potencijalno
 
 
 # main method
