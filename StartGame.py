@@ -74,6 +74,7 @@ class Board(QFrame):
         self.snakeTest2 = Snake.Snake([[10,10], [10,11]], 4, Board.WIDTHINBLOCKS, Board.HEIGHTINBLOCKS)
 
         self.snakes = [self.snakeTest, self.snakeTest2]
+        self.TurnCounter = 0
 
         # wall
         self.wall = [[0, 0], [0, 1], [0, 2], [0, 3]]
@@ -170,56 +171,56 @@ class Board(QFrame):
         # key press event
 
     def keyPressEvent(self, event):
+        if not self.GAME_OVER:
+            snake = self.snakes[self.TurnCounter]
+            valid_move = False
+            # getting key pressed
+            key = event.key()
+            # if left key pressed
+            if key == Qt.Key_Left:
+                # if direction is not right
+                if snake.Direction != 2:
+                    # set direction to left
+                    snake.Direction = 1
+                    snake.move_snake()
+                    valid_move = True
 
-        for snake in self.snakes:
-            if (self.GAME_OVER == False):
-                # getting key pressed
-                key = event.key()
-                # if left key pressed
-                if key == Qt.Key_Left:
-                    # if direction is not right
-                    if snake.Direction != 2:
-                        # set direction to left
-                        snake.Direction = 1
-                        self.move_food()  # pomeranje hrane
-                        snake.move_snake()
+            # if right key is pressed
+            elif key == Qt.Key_Right:
+                # if direction is not left
+                if snake.Direction != 1:
+                    # set direction to right
+                    snake.Direction = 2
+                    snake.move_snake()
+                    valid_move = True
 
-                # if right key is pressed
-                elif key == Qt.Key_Right:
-                    # if direction is not left
-                    if snake.Direction != 1:
-                        # set direction to right
-                        snake.Direction = 2
-                        self.move_food()  # pomeranje hrane
-                        snake.move_snake()
+            # if down key is pressed
+            elif key == Qt.Key_Down:
+                # if direction is not up
+                if snake.Direction != 4:
+                    # set direction to down
+                    snake.Direction = 3
+                    snake.move_snake()
+                    valid_move = True
 
-                # if down key is pressed
-                elif key == Qt.Key_Down:
-                    # if direction is not up
-                    if snake.Direction != 4:
-                        # set direction to down
-                        snake.Direction = 3
-                        self.move_food()  # pomeranje hrane
-                        snake.move_snake()
-
-                # if up key is pressed
-                elif key == Qt.Key_Up:
-                    # if direction is not down
-                    if snake.Direction != 3:
-                        # set direction to up
-                        snake.Direction = 4
-                        self.move_food()  # pomeranje hrane
-                        snake.move_snake()
-                # -----------------------------
-                # call move snake method
-
+            # if up key is pressed
+            elif key == Qt.Key_Up:
+                # if direction is not down
+                if snake.Direction != 3:
+                    # set direction to up
+                    snake.Direction = 4
+                    snake.move_snake()
+                    valid_move = True
+            # -----------------------------
+            # call move snake method
+            if valid_move:
                 self.is_food_collision()
-                # call is suicide method
-                self.is_suicide()
-                self.is_wall_collision()
-                # update the window
-                self.update()
-                # ************
+                self.death()
+                if len(self.snakes) == 0:
+                    self.game_over()
+                else:
+                    self.TurnCounter = (self.TurnCounter + 1) % len(self.snakes)
+                    self.update()
 
     # time event method
     def timerEvent(self, event):
@@ -236,58 +237,44 @@ class Board(QFrame):
             self.update()
         """
 
-    def is_suicide(self):
-        for snake in self.snakes:
-            if snake.suicide():
-                # show game ended msg in status bar
-                self.msg2statusbar.emit(str("Game Ended"))
-                # making background color black
-                self.setStyleSheet("background-color : black;")
-                # stopping the timer
-                # self.timer.stop()       #NE KORISTI SE
-                self.GAME_OVER = True
-                # updating the window
+    def death(self):
+        snake = self.snakes[self.TurnCounter]
+        if snake.suicide():
+            self.snakes.remove(snake)
+            self.update()
+            filename = 'sounds/mixkit-falling-game-over-1942.wav'
+            winsound.PlaySound(filename, winsound.SND_ASYNC)
+            return
+        for i in self.wall:
+            # if collision found
+            if i == snake.Position[0]:
+                self.snakes.remove(snake)
                 self.update()
-                # -----------------ZVUK ZA KRAJ
                 filename = 'sounds/mixkit-falling-game-over-1942.wav'
                 winsound.PlaySound(filename, winsound.SND_ASYNC)
-                # ------------------------------
-                # method to check if the food cis collied
+                return
+        # ostaje jos provera da li je zmija udarila u drugu zmiju
 
-    def is_wall_collision(self):
-        # traversing the snake
-        for snake in self.snakes:
-            for i in self.wall:
-                # if collision found
-                if i == snake.Position[0]:
-                    # show game ended msg in status bar
-                    self.msg2statusbar.emit(str("Game Ended"))
-                    # making background color black
-                    self.setStyleSheet("background-color : black;")
-                    # stopping the timer
-                    # self.timer.stop()       #NE KORISTI SE
-                    self.GAME_OVER = True
-                    # updating the window
-                    self.update()
-                    # -----------------ZVUK ZA KRAJ
-                    filename = 'sounds/mixkit-falling-game-over-1942.wav'
-                    winsound.PlaySound(filename, winsound.SND_ASYNC)
-                    # ------------------------------
-                    # method to check if the food cis collied
+    def game_over(self):
+        self.GAME_OVER = True
+        self.msg2statusbar.emit(str("Game Ended"))
+        self.setStyleSheet("background-color : black;")
+        # self.timer.stop()       #NE KORISTI SE
+        self.update()
 
     def is_food_collision(self):
-
-        for snake in self.snakes:
-            # traversing the position of the food
-            for pos in self.food:
-                # if food position is similar of snake position
-                if pos == snake.Position[0]:
-                    # remove the food
-                    self.food.remove(pos)
-                    # call drop food method
-                    self.drop_food()
-                    # grow the snake
-                    snake.Grow_snake = True
+        snake = self.snakes[self.TurnCounter]
+        # traversing the position of the food
+        for pos in self.food:
+            # if food position is similar of snake position
+            if pos == snake.Position[0]:
+                # remove the food
+                self.food.remove(pos)
+                # call drop food method
+                self.drop_food()
+                # grow the snake
+                snake.Grow_snake = True
+            self.move_food()
 
     # method to drop food on screen
     def drop_food(self):
