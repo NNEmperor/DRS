@@ -218,9 +218,6 @@ class Board(QFrame):
                 self.death()
                 if len(self.snakes) == 0:
                     self.game_over()
-                else:
-                    self.TurnCounter = (self.TurnCounter + 1) % len(self.snakes)
-                    self.update()
 
     # time event method
     def timerEvent(self, event):
@@ -254,6 +251,10 @@ class Board(QFrame):
                 winsound.PlaySound(filename, winsound.SND_ASYNC)
                 return
         # ostaje jos provera da li je zmija udarila u drugu zmiju
+        # ako zmija nije umrla potrebno je promenimo turn counter, ako je izbacena niz se "skupi"
+        # tako da je sledeca na redu pod istim indeksom
+        self.TurnCounter = (self.TurnCounter + 1) % len(self.snakes)
+        self.update()
 
     def game_over(self):
         self.GAME_OVER = True
