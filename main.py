@@ -1,10 +1,11 @@
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QLabel
+from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QLabel, QComboBox
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QImage, QPalette, QBrush, QIcon
 import sys
 
 import StartGame
+
 
 class MainWindow(QWidget):
     MainWindowHeight = 900
@@ -36,23 +37,31 @@ class MainWindow(QWidget):
         pallete.setBrush(QPalette.Window, QBrush(sImage))
         self.setPalette(pallete)
 
+        self.combo = QComboBox(self)
+        self.combo.addItem("1")
+        self.combo.addItem("2")
+        self.combo.addItem("3")
+        self.combo.addItem("4")
+        self.combo.move(400, 650)
+
         self.center()
         self.show()
-
 
     def initButtons(self):
         self.startButton = QtWidgets.QPushButton(self)
         self.startButton.setCursor(Qt.PointingHandCursor)
         self.startButton.setText("Start Game")
         self.startButton.setGeometry(150, 700, 250, 80)
-        self.startButton.setStyleSheet("background-color :gold;border:  none;font-family: Lucida Handwriting;font-size: 25px;border-radius:35px")
+        self.startButton.setStyleSheet(
+            "background-color :gold;border:  none;font-family: Lucida Handwriting;font-size: 25px;border-radius:35px")
         self.startButton.clicked.connect(self.closeMainApp_OpenStartApp)
 
         self.exitButton = QtWidgets.QPushButton(self)
         self.exitButton.setCursor(Qt.PointingHandCursor)
         self.exitButton.setText("Quit")
         self.exitButton.setGeometry(500, 700, 250, 80)
-        self.exitButton.setStyleSheet("background-color :gold;border:  none;font-family: Lucida Handwriting;font-size: 25px;border-radius:35px")
+        self.exitButton.setStyleSheet(
+            "background-color :gold;border:  none;font-family: Lucida Handwriting;font-size: 25px;border-radius:35px")
 
     def center(self):
         screen = QDesktopWidget().screenGeometry()
@@ -60,9 +69,11 @@ class MainWindow(QWidget):
         self.move(int((screen.width() - size.width()) / 2), int((screen.height() - size.height()) / 2))
 
     def closeMainApp_OpenStartApp(self):
+        num = int(self.combo.currentText())
         self.close()
-        self.Open = StartGame.Window()
+        self.Open = StartGame.Window(num)
         self.Open.show()
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

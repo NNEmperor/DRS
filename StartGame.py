@@ -6,15 +6,17 @@ import random
 import sys
 import winsound
 import Snake
+import time
+from threading import Thread
 
 
 # creating game window
 class Window(QMainWindow):
-    def __init__(self):
+    def __init__(self, num):
         super(Window, self).__init__()
 
         # creating a board object
-        self.board = Board(self)
+        self.board = Board(self, num)
 
         # creating a status bar to show result
         self.statusbar = self.statusBar()
@@ -63,17 +65,18 @@ class Board(QFrame):
     HEIGHTINBLOCKS = 40
 
     # constructor
-    def __init__(self, parent):
+    def __init__(self, parent, num):
         super(Board, self).__init__(parent)
 
         # creating a timer
         self.timer = QBasicTimer()
+        self.reset_timer = True
 
-        # snake
-        self.snakeTest = Snake.Snake([[5, 10], [5, 11]], 4, Board.WIDTHINBLOCKS, Board.HEIGHTINBLOCKS)
-        self.snakeTest2 = Snake.Snake([[10,10], [10,11]], 4, Board.WIDTHINBLOCKS, Board.HEIGHTINBLOCKS)
+        # snakes
+        self.snakes = []
+        for i in range(num):
+            self.snakes.append(Snake.Snake([[2 + 2 * i, 36], [2 + 2 * i, 37]], 4, Board.WIDTHINBLOCKS, Board.HEIGHTINBLOCKS))
 
-        self.snakes = [self.snakeTest, self.snakeTest2]
         self.TurnCounter = 0
 
         # wall
@@ -84,6 +87,9 @@ class Board(QFrame):
                     self.wall.append([i, j])
                 elif i == Board.WIDTHINBLOCKS - 1 or j == Board.HEIGHTINBLOCKS - 1:
                     self.wall.append([i, j])
+
+        self.intervalTimer = IntervalTimer(5, self.next_turn, self.msg2statusbar)
+        self.intervalTimer.start()
 
         # food list
         self.food = []
@@ -129,15 +135,15 @@ class Board(QFrame):
         boardtop = rect.bottom() - Board.HEIGHTINBLOCKS * self.square_height()
 
         # drawing snake
-        color = QColor(0x228B22)
         for snake in self.snakes:
             for pos in snake.Position:
+                color = QColor(0x228B22)
                 if snake.Position[0][0] == pos[0] and snake.Position[0][1] == pos[1]:
-                    color = QColor(0, 100, 0)  # BOJI GLAVU
+                    color = QColor(0x195e32)  # BOJI GLAVU
                 self.draw_square(painter, rect.left() + pos[0] * self.square_width(),
                                  boardtop + pos[1] * self.square_height(), color)
 
-            # drawing food
+        # drawing food
         for pos in self.food:
             self.draw_square_food(painter, rect.left() + pos[0] * self.square_width(),
                                   boardtop + pos[1] * self.square_height())
@@ -253,8 +259,14 @@ class Board(QFrame):
         # ostaje jos provera da li je zmija udarila u drugu zmiju
         # ako zmija nije umrla potrebno je promenimo turn counter, ako je izbacena niz se "skupi"
         # tako da je sledeca na redu pod istim indeksom
+        self.next_turn()
+
+    def next_turn(self):
+       # self.change_snake_color(0x228B22, self.TurnCounter)
         self.TurnCounter = (self.TurnCounter + 1) % len(self.snakes)
         self.update()
+        self.intervalTimer.reset = True
+       # self.change_snake_color(0xe342f5, self.TurnCounter)
 
     def game_over(self):
         self.GAME_OVER = True
@@ -325,6 +337,34 @@ class Board(QFrame):
                     if not na_poziciji:
                         if [potencijalno, self.food[i][1]] not in self.wall:
                             self.food[i][0] = potencijalno
+
+
+class IntervalTimer(Thread):
+
+    def __init__(self, secs, func, statusbar):
+        super(IntervalTimer, self).__init__(target=func)
+
+        self.__interval = secs
+        self.__func = func
+        self.__exiting = False
+        self.reset = False
+        self.counter = 0
+        self.statusbar = statusbar
+
+    def run(self):
+        while not self.__exiting:
+            # time.sleep(self.__interval)
+            self.reset = False
+            while not self.reset:
+                self.statusbar.emit(str(self.counter))
+                time.sleep(1)
+                self.counter = self.counter + 1
+                if self.counter == 5:
+                    self.__func()
+            self.counter = 0
+
+    def cancel(self):
+        self.__exiting = True
 
 
 # main method
