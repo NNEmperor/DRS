@@ -37,12 +37,31 @@ class MainWindow(QWidget):
         pallete.setBrush(QPalette.Window, QBrush(sImage))
         self.setPalette(pallete)
 
-        self.combo = QComboBox(self)
-        self.combo.addItem("1")
-        self.combo.addItem("2")
-        self.combo.addItem("3")
-        self.combo.addItem("4")
-        self.combo.move(400, 650)
+        #za broj igraca
+        self.lblNumPlayers = QLabel(self)
+        self.lblNumPlayers.setText("Select number of players")
+        self.lblNumPlayers.setStyleSheet("color: gold; font-size: 15px; font-family: Lucida Handwriting;")
+        self.lblNumPlayers.move(200, 610)
+
+        self.comboPlayers = QComboBox(self)
+        #self.comboPlayers.addItem("1")
+        self.comboPlayers.addItem("2")
+        self.comboPlayers.addItem("3")
+        self.comboPlayers.addItem("4")
+        self.comboPlayers.move(290, 650)
+
+        #za broj zmija
+        self.lblNumPlayers = QLabel(self)
+        self.lblNumPlayers.setText("Select number of snakes")
+        self.lblNumPlayers.setStyleSheet("color: gold; font-size: 15px; font-family: Lucida Handwriting;")
+        self.lblNumPlayers.move(470, 610)
+
+        self.comboSnakes = QComboBox(self)
+        self.comboSnakes.addItem("1")
+        self.comboSnakes.addItem("2")
+        self.comboSnakes.addItem("3")
+        self.comboSnakes.addItem("4")
+        self.comboSnakes.move(550, 650)
 
         self.center()
         self.show()
@@ -69,9 +88,10 @@ class MainWindow(QWidget):
         self.move(int((screen.width() - size.width()) / 2), int((screen.height() - size.height()) / 2))
 
     def closeMainApp_OpenStartApp(self):
-        num = int(self.combo.currentText())
+        numPlayers = int(self.comboPlayers.currentText())
+        numSnakes = int(self.comboSnakes.currentText())
         self.close()
-        self.Open = StartGame.Window(num)
+        self.Open = StartGame.Window(numPlayers, numSnakes)
         self.Open.show()
 
 

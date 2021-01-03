@@ -12,11 +12,11 @@ from threading import Thread
 
 # creating game window
 class Window(QMainWindow):
-    def __init__(self, num):
+    def __init__(self, numPlayers, numSnakes):
         super(Window, self).__init__()
 
         # creating a board object
-        self.board = Board(self, num)
+        self.board = Board(self, numPlayers, numSnakes)
 
         # creating a status bar to show result
         self.statusbar = self.statusBar()
@@ -65,7 +65,7 @@ class Board(QFrame):
     HEIGHTINBLOCKS = 40
 
     # constructor
-    def __init__(self, parent, num):
+    def __init__(self, parent, numPlayers, numSnakes):
         super(Board, self).__init__(parent)
 
         # creating a timer
@@ -74,8 +74,17 @@ class Board(QFrame):
 
         # snakes
         self.snakes = []
-        for i in range(num):
-            self.snakes.append(Snake.Snake([[2 + 2 * i, 36], [2 + 2 * i, 37]], 4, Board.WIDTHINBLOCKS, Board.HEIGHTINBLOCKS))
+
+        for i in range(numSnakes):
+            for j in range(numPlayers):
+                if j == 0:
+                    self.snakes.append(Snake.Snake([[3, 2 + 2 * i], [2, 2 + 2 * i]], 2, Board.WIDTHINBLOCKS, Board.HEIGHTINBLOCKS, j))
+                if j == 1:
+                    self.snakes.append(Snake.Snake([[3, 37 - 2 * i], [2, 37 - 2 * i]], 2, Board.WIDTHINBLOCKS, Board.HEIGHTINBLOCKS, j))
+                if j == 2:
+                    self.snakes.append(Snake.Snake([[56, 2 + 2 * i], [57, 2 + 2 * i]], 1, Board.WIDTHINBLOCKS, Board.HEIGHTINBLOCKS, j))
+                if j == 3:
+                    self.snakes.append(Snake.Snake([[56, 37 - 2 * i], [57, 37 - 2 * i]], 1, Board.WIDTHINBLOCKS, Board.HEIGHTINBLOCKS, j))
 
         self.TurnCounter = 0
 
@@ -95,7 +104,8 @@ class Board(QFrame):
         self.food = []
 
         # called drop food method
-        self.drop_food()
+        for i in range((len(self.snakes) / 2).__round__()):
+            self.drop_food()
 
         # setting focus
         self.setFocusPolicy(Qt.StrongFocus)
@@ -136,12 +146,34 @@ class Board(QFrame):
 
         # drawing snake
         for snake in self.snakes:
-            for pos in snake.Position:
-                color = QColor(0x228B22)
-                if snake.Position[0][0] == pos[0] and snake.Position[0][1] == pos[1]:
-                    color = QColor(0x195e32)  # BOJI GLAVU
-                self.draw_square(painter, rect.left() + pos[0] * self.square_width(),
-                                 boardtop + pos[1] * self.square_height(), color)
+            if snake.Team == 0:
+                for pos in snake.Position:
+                    color = QColor(0x228B22)
+                    if snake.Position[0][0] == pos[0] and snake.Position[0][1] == pos[1]:
+                        color = QColor(0x195e32)  # BOJI GLAVU
+                    self.draw_square(painter, rect.left() + pos[0] * self.square_width(),
+                                     boardtop + pos[1] * self.square_height(), color)
+            if snake.Team == 1:
+                for pos in snake.Position:
+                    color = QColor(0x4566de)
+                    if snake.Position[0][0] == pos[0] and snake.Position[0][1] == pos[1]:
+                        color = QColor(0x112d91)  # BOJI GLAVU
+                    self.draw_square(painter, rect.left() + pos[0] * self.square_width(),
+                                     boardtop + pos[1] * self.square_height(), color)
+            if snake.Team == 2:
+                for pos in snake.Position:
+                    color = QColor(0xde355d)
+                    if snake.Position[0][0] == pos[0] and snake.Position[0][1] == pos[1]:
+                        color = QColor(0xb30c34)  # BOJI GLAVU
+                    self.draw_square(painter, rect.left() + pos[0] * self.square_width(),
+                                     boardtop + pos[1] * self.square_height(), color)
+            if snake.Team == 3:
+                for pos in snake.Position:
+                    color = QColor(0xfdff91)
+                    if snake.Position[0][0] == pos[0] and snake.Position[0][1] == pos[1]:
+                        color = QColor(0xfbff00)  # BOJI GLAVU
+                    self.draw_square(painter, rect.left() + pos[0] * self.square_width(),
+                                     boardtop + pos[1] * self.square_height(), color)
 
         # drawing food
         for pos in self.food:
@@ -168,7 +200,7 @@ class Board(QFrame):
 
     def draw_square_food(self, painter, x, y):
         # color
-        color = QColor(255, 0, 0)
+        color = QColor(0x000000)
 
         # painting rectangle
         painter.fillRect(x + 1, y + 1, self.square_width() - 2,
@@ -243,6 +275,8 @@ class Board(QFrame):
     def death(self):
         snake = self.snakes[self.TurnCounter]
         if snake.suicide():
+            if self.TurnCounter + 1 == len(self.snakes):
+                self.TurnCounter = 0
             self.snakes.remove(snake)
             self.update()
             filename = 'sounds/mixkit-falling-game-over-1942.wav'
@@ -251,6 +285,8 @@ class Board(QFrame):
         for i in self.wall:
             # if collision found
             if i == snake.Position[0]:
+                if self.TurnCounter + 1 == len(self.snakes):
+                    self.TurnCounter = 0
                 self.snakes.remove(snake)
                 self.update()
                 filename = 'sounds/mixkit-falling-game-over-1942.wav'
@@ -259,14 +295,16 @@ class Board(QFrame):
         # ostaje jos provera da li je zmija udarila u drugu zmiju
         # ako zmija nije umrla potrebno je promenimo turn counter, ako je izbacena niz se "skupi"
         # tako da je sledeca na redu pod istim indeksom
+        self.TurnCounter = (self.TurnCounter + 1) % len(self.snakes)
         self.next_turn()
 
+    #bilo bi dobro da kada istekne timer pozove neku posebnu funkciju, a da se ova promeni u iskljcivo bojenje zmije, turn counter se menja u death
     def next_turn(self):
-       # self.change_snake_color(0x228B22, self.TurnCounter)
-        self.TurnCounter = (self.TurnCounter + 1) % len(self.snakes)
+        # self.change_snake_color(0x228B22, self.TurnCounter)
+        # self.TurnCounter = (self.TurnCounter + 1) % len(self.snakes)
         self.update()
         self.intervalTimer.reset = True
-       # self.change_snake_color(0xe342f5, self.TurnCounter)
+        # self.change_snake_color(0xe342f5, self.TurnCounter)
 
     def game_over(self):
         self.GAME_OVER = True
@@ -287,7 +325,16 @@ class Board(QFrame):
                 self.drop_food()
                 # grow the snake
                 snake.Grow_snake = True
-            self.move_food()
+            teams_left = []
+            #kod za pomeranje kada svaki igrac pomeri barem jednu zmiju
+            #for snake in self.snakes:
+            #    if snake.Team not in teams_left:
+            #        teams_left.append(snake.Team)
+            #if (self.TurnCounter + 1) % len(teams_left) == 0:
+            #    self.move_food()
+            if self.TurnCounter + 1 == len(self.snakes):
+                self.move_food()
+
 
     # method to drop food on screen
     def drop_food(self):

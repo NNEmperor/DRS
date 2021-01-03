@@ -9,15 +9,17 @@ class Snake(QFrame):
     WIDTH = 0
     HEIGHT = 0
 
-    def __init__(self, position, direction, width, height):
+    def __init__(self, position, direction, width, height, team):
         self.Position = position
+
+        self.Direction = direction
 
         self.current_x_head = position[0][0]
         self.current_y_head = position[0][1]
 
-        self.Direction = direction
-
         self.Grow_snake = False
+
+        self.Team = team
 
         # sirina i visina za pomeranje zmije
         self.WIDTH = width
@@ -70,7 +72,6 @@ class Snake(QFrame):
         if not self.Grow_snake:
             # pop the last element
             self.Position.pop()
-
         else:
             # make grow_snake to false
             self.Grow_snake = False
