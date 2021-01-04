@@ -75,6 +75,7 @@ class Board(QFrame):
         # snakes
         self.snakes = []
 
+        #set Snakes
         for i in range(numSnakes):
             for j in range(numPlayers):
                 if j == 0:
