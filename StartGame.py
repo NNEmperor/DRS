@@ -295,7 +295,20 @@ class Board(QFrame):
                 winsound.PlaySound(filename, winsound.SND_ASYNC)
                 self.next_turn()
                 return
-        # ostaje jos provera da li je zmija udarila u drugu zmiju
+        # provera da li je zmija udarila u drugu zmiju
+        for s in self.snakes:
+            if s.Team != snake.Team:
+                for i in s.Position:
+                    if i == snake.Position[0]:
+                        if self.TurnCounter + 1 == len(self.snakes):
+                            self.TurnCounter = 0
+                        self.snakes.remove(snake)
+                        self.update()
+                        filename = 'sounds/mixkit-falling-game-over-1942.wav'
+                        winsound.PlaySound(filename, winsound.SND_ASYNC)
+                        self.next_turn()
+                        return
+
         # ako zmija nije umrla potrebno je promenimo turn counter, ako je izbacena niz se "skupi"
         # tako da je sledeca na redu pod istim indeksom
         snake.turns_left = snake.turns_left - 1
