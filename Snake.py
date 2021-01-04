@@ -25,6 +25,8 @@ class Snake(QFrame):
         self.WIDTH = width
         self.HEIGHT = height
 
+        self.turns_left = len(self.Position)
+
     #comment
     def suicide(self):
         for i in range(1, len(self.Position)):

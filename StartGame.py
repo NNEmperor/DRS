@@ -98,7 +98,7 @@ class Board(QFrame):
                 elif i == Board.WIDTHINBLOCKS - 1 or j == Board.HEIGHTINBLOCKS - 1:
                     self.wall.append([i, j])
 
-        self.intervalTimer = IntervalTimer(5, self.next_turn, self.msg2statusbar)
+        self.intervalTimer = IntervalTimer(5, self.timeout, self.msg2statusbar)
         self.intervalTimer.start()
 
         # food list
@@ -282,6 +282,7 @@ class Board(QFrame):
             self.update()
             filename = 'sounds/mixkit-falling-game-over-1942.wav'
             winsound.PlaySound(filename, winsound.SND_ASYNC)
+            self.next_turn()
             return
         for i in self.wall:
             # if collision found
@@ -292,12 +293,27 @@ class Board(QFrame):
                 self.update()
                 filename = 'sounds/mixkit-falling-game-over-1942.wav'
                 winsound.PlaySound(filename, winsound.SND_ASYNC)
+                self.next_turn()
                 return
         # ostaje jos provera da li je zmija udarila u drugu zmiju
         # ako zmija nije umrla potrebno je promenimo turn counter, ako je izbacena niz se "skupi"
         # tako da je sledeca na redu pod istim indeksom
-        self.TurnCounter = (self.TurnCounter + 1) % len(self.snakes)
+        snake.turns_left = snake.turns_left - 1
+        if snake.turns_left == 0:
+            self.TurnCounter = (self.TurnCounter + 1) % len(self.snakes)
+            snake.turns_left = len(snake.Position)
+            if snake.Grow_snake:
+                snake.turns_left = snake.turns_left + 1
         self.next_turn()
+
+    #ako istekne 5 sekundi, potez se automatski odigra tako sto se zmija pomeri u trenutnom pravcu
+    def timeout(self):
+        snake = self.snakes[self.TurnCounter]
+        snake.move_snake()
+        self.is_food_collision()
+        self.death()
+        if len(self.snakes) == 0:
+            self.game_over()
 
     #bilo bi dobro da kada istekne timer pozove neku posebnu funkciju, a da se ova promeni u iskljcivo bojenje zmije, turn counter se menja u death
     def next_turn(self):
@@ -309,6 +325,7 @@ class Board(QFrame):
 
     def game_over(self):
         self.GAME_OVER = True
+        self.intervalTimer.cancel()
         self.msg2statusbar.emit(str("Game Ended"))
         self.setStyleSheet("background-color : black;")
         # self.timer.stop()       #NE KORISTI SE
@@ -334,7 +351,8 @@ class Board(QFrame):
             #if (self.TurnCounter + 1) % len(teams_left) == 0:
             #    self.move_food()
             if self.TurnCounter + 1 == len(self.snakes):
-                self.move_food()
+                if self.snakes[self.TurnCounter].turns_left == 1:
+                    self.move_food()
 
 
     # method to drop food on screen
