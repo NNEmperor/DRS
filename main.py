@@ -40,10 +40,11 @@ class MainWindow(QWidget):
         #za broj igraca
         self.lblNumPlayers = QLabel(self)
         self.lblNumPlayers.setText("Select number of players")
-        self.lblNumPlayers.setStyleSheet("color: gold; font-size: 15px; font-family: Lucida Handwriting;")
+        self.lblNumPlayers.setStyleSheet("color: gold; font-size: 18px; font-family: Lucida Handwriting;")
         self.lblNumPlayers.move(200, 610)
 
         self.comboPlayers = QComboBox(self)
+        self.comboPlayers.setStyleSheet("color: gold; background-color:#3B1E08 ; font-size: 27px; font-family: Lucida Handwriting;")
         #self.comboPlayers.addItem("1")
         self.comboPlayers.addItem("2")
         self.comboPlayers.addItem("3")
@@ -53,10 +54,11 @@ class MainWindow(QWidget):
         #za broj zmija
         self.lblNumPlayers = QLabel(self)
         self.lblNumPlayers.setText("Select number of snakes")
-        self.lblNumPlayers.setStyleSheet("color: gold; font-size: 15px; font-family: Lucida Handwriting;")
+        self.lblNumPlayers.setStyleSheet("color: gold; font-size: 18px; font-family: Lucida Handwriting;")
         self.lblNumPlayers.move(470, 610)
 
         self.comboSnakes = QComboBox(self)
+        self.comboSnakes.setStyleSheet("color: gold; background-color:#3B1E08 ; font-size: 27px; font-family: Lucida Handwriting;")
         self.comboSnakes.addItem("1")
         self.comboSnakes.addItem("2")
         self.comboSnakes.addItem("3")
