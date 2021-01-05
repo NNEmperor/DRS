@@ -75,6 +75,26 @@ class Board(QFrame):
         # snakes
         self.snakes = []
 
+        # kad se opkoli,za pozicije nove zmije
+        self.new_snake = []
+
+        for position_number in range(4):
+            self.new_snake.append([[3, 2 + 2 * position_number], [2, 2 + 2 * position_number]])
+            self.new_snake.append([[3, 37 - 2 * position_number], [2, 37 - 2 * position_number]])
+            self.new_snake.append([[56, 2 + 2 * position_number], [57, 2 + 2 * position_number]])
+            self.new_snake.append([[56, 37 - 2 * position_number], [57, 37 - 2 * position_number]])
+
+        self.all_pos = []
+        for position_number in range(4):
+            self.all_pos.append([3, 2 + 2 * position_number])
+            self.all_pos.append([2, 2 + 2 * position_number])
+            self.all_pos.append([3, 37 - 2 * position_number])
+            self.all_pos.append([2, 37 - 2 * position_number])
+            self.all_pos.append([56, 2 + 2 * position_number])
+            self.all_pos.append([57, 2 + 2 * position_number])
+            self.all_pos.append([56, 37 - 2 * position_number])
+            self.all_pos.append([57, 37 - 2 * position_number])
+
         #set Snakes
         for i in range(numSnakes):
             for j in range(numPlayers):
@@ -201,7 +221,7 @@ class Board(QFrame):
 
     def draw_square_food(self, painter, x, y):
         # color
-        color = QColor(0x000000)
+        color = QColor(255, 255, 255)
 
         # painting rectangle
         painter.fillRect(x + 1, y + 1, self.square_width() - 2,
@@ -401,8 +421,9 @@ class Board(QFrame):
                         if [self.food[i][0], potencijalno] in self.snakes[index_snake].Position:
                             na_poziciji = True
                     if not na_poziciji:
-                        if [self.food[i][0], potencijalno] not in self.wall:
-                            self.food[i][1] = potencijalno
+                        if [self.food[i][0], potencijalno] not in self.all_pos:
+                            if [self.food[i][0], potencijalno] not in self.wall:
+                                self.food[i][1] = potencijalno
             else:
                 for j in range(random.randint(1, 3)):
                     potencijalno = (self.food[i][0] + random.choice([-1, 1])) % self.WIDTHINBLOCKS
@@ -414,8 +435,9 @@ class Board(QFrame):
                         if [potencijalno, self.food[i][1]] in self.snakes[index_snake].Position:
                             na_poziciji= True
                     if not na_poziciji:
-                        if [potencijalno, self.food[i][1]] not in self.wall:
-                            self.food[i][0] = potencijalno
+                        if [potencijalno, self.food[i][1]] not in self.all_pos:  # pocetne pozicije
+                            if [potencijalno, self.food[i][1]] not in self.wall:
+                                self.food[i][0] = potencijalno
 
 
 class IntervalTimer(Thread):
