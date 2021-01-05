@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QLabel, QComboBox
+from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QLabel, QComboBox, QMessageBox
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QImage, QPalette, QBrush, QIcon
 import sys
@@ -80,6 +80,7 @@ class MainWindow(QWidget):
         self.exitButton = QtWidgets.QPushButton(self)
         self.exitButton.setCursor(Qt.PointingHandCursor)
         self.exitButton.setText("Quit")
+        self.exitButton.clicked.connect(self.closeApp)
         self.exitButton.setGeometry(500, 700, 250, 80)
         self.exitButton.setStyleSheet(
             "background-color :gold;border:  none;font-family: Lucida Handwriting;font-size: 25px;border-radius:35px")
@@ -95,6 +96,23 @@ class MainWindow(QWidget):
         self.close()
         self.Open = StartGame.Window(numPlayers, numSnakes)
         self.Open.show()
+
+    def closeApp(self):
+        """Generate 'question' dialog on clicking 'X' button in title bar.
+
+        Reimplement the closeEvent() event handler to include a 'Question'
+        dialog with options on how to proceed - Save, Close, Cancel buttons
+        """
+        reply = QMessageBox.question(
+            self, "Message",
+            "Are you sure you want to quit?",
+            QMessageBox.Yes | QMessageBox.No)
+
+        if reply == QMessageBox.Yes:
+            app.quit()
+            #event.accept()
+        else:
+            pass
 
 
 if __name__ == '__main__':
