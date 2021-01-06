@@ -64,6 +64,9 @@ class Board(QFrame):
     WIDTHINBLOCKS = 60
     HEIGHTINBLOCKS = 40
 
+    NumPlayers = 0
+    NumSnakes = 0
+
     # constructor
     def __init__(self, parent, numPlayers, numSnakes):
         super(Board, self).__init__(parent)
@@ -71,6 +74,9 @@ class Board(QFrame):
         # creating a timer
         self.timer = QBasicTimer()
         self.reset_timer = True
+
+        self.NumPlayers = numPlayers
+        self.NumSnakes = numSnakes
 
         # snakes
         self.snakes = []
@@ -118,7 +124,7 @@ class Board(QFrame):
                 elif i == Board.WIDTHINBLOCKS - 1 or j == Board.HEIGHTINBLOCKS - 1:
                     self.wall.append([i, j])
 
-        self.intervalTimer = IntervalTimer(5, self.timeout, self.msg2statusbar)
+        self.intervalTimer = IntervalTimer(5, self.timeout, self.msg2statusbar, self.NumPlayers, self.NumSnakes, self.snakes)
         self.intervalTimer.start()
 
         # food list
@@ -154,6 +160,43 @@ class Board(QFrame):
 
     # paint event
 
+    def colorCurrentSnake(self):
+        curSnake = self.snakes[self.TurnCounter]
+        painter = QPainter(self)
+        rect = self.contentsRect()
+        boardtop = rect.bottom() - Board.HEIGHTINBLOCKS * self.square_height()
+
+        if curSnake.Team == 0:
+            for pos in curSnake.Position:
+                color = QColor(0x3aba3a)
+                if curSnake.Position[0][0] == pos[0] and curSnake.Position[0][1] == pos[1]:
+                    color = QColor(0x248a49)  # BOJI GLAVU
+                self.draw_square(painter, rect.left() + pos[0] * self.square_width(),
+                                 boardtop + pos[1] * self.square_height(), color)
+        elif curSnake.Team == 1:
+            for pos in curSnake.Position:
+                color = QColor(0x829bf5)
+                if curSnake.Position[0][0] == pos[0] and curSnake.Position[0][1] == pos[1]:
+                    color = QColor(0x1d48e0)  # BOJI GLAVU
+                self.draw_square(painter, rect.left() + pos[0] * self.square_width(),
+                                 boardtop + pos[1] * self.square_height(), color)
+        elif curSnake.Team == 2:
+            for pos in curSnake.Position:
+                color = QColor(0xf26183)
+                if curSnake.Position[0][0] == pos[0] and curSnake.Position[0][1] == pos[1]:
+                    color = QColor(0xd12850)  # BOJI GLAVU
+                self.draw_square(painter, rect.left() + pos[0] * self.square_width(),
+                                 boardtop + pos[1] * self.square_height(), color)
+        elif curSnake.Team == 3:
+            for pos in curSnake.Position:
+                color = QColor(0xfeffad)
+                if curSnake.Position[0][0] == pos[0] and curSnake.Position[0][1] == pos[1]:
+                    color = QColor(0xdadb6e)  # BOJI GLAVU
+                self.draw_square(painter, rect.left() + pos[0] * self.square_width(),
+                                 boardtop + pos[1] * self.square_height(), color)
+
+
+
     def paintEvent(self, event):
 
         # creating painter object
@@ -169,30 +212,30 @@ class Board(QFrame):
         for snake in self.snakes:
             if snake.Team == 0:
                 for pos in snake.Position:
-                    color = QColor(0x228B22)
+                    color = QColor(0x1a6b1a)
                     if snake.Position[0][0] == pos[0] and snake.Position[0][1] == pos[1]:
-                        color = QColor(0x195e32)  # BOJI GLAVU
+                        color = QColor(0x124d27)  # BOJI GLAVU
                     self.draw_square(painter, rect.left() + pos[0] * self.square_width(),
                                      boardtop + pos[1] * self.square_height(), color)
             if snake.Team == 1:
                 for pos in snake.Position:
-                    color = QColor(0x4566de)
+                    color = QColor(0x3859d1)
                     if snake.Position[0][0] == pos[0] and snake.Position[0][1] == pos[1]:
-                        color = QColor(0x112d91)  # BOJI GLAVU
+                        color = QColor(0x0c247a)  # BOJI GLAVU
                     self.draw_square(painter, rect.left() + pos[0] * self.square_width(),
                                      boardtop + pos[1] * self.square_height(), color)
             if snake.Team == 2:
                 for pos in snake.Position:
-                    color = QColor(0xde355d)
+                    color = QColor(0xc9224a)
                     if snake.Position[0][0] == pos[0] and snake.Position[0][1] == pos[1]:
-                        color = QColor(0xb30c34)  # BOJI GLAVU
+                        color = QColor(0x990629)  # BOJI GLAVU
                     self.draw_square(painter, rect.left() + pos[0] * self.square_width(),
                                      boardtop + pos[1] * self.square_height(), color)
             if snake.Team == 3:
                 for pos in snake.Position:
-                    color = QColor(0xfdff91)
+                    color = QColor(0xe8eb63)
                     if snake.Position[0][0] == pos[0] and snake.Position[0][1] == pos[1]:
-                        color = QColor(0xfbff00)  # BOJI GLAVU
+                        color = QColor(0xc4c702)  # BOJI GLAVU
                     self.draw_square(painter, rect.left() + pos[0] * self.square_width(),
                                      boardtop + pos[1] * self.square_height(), color)
 
@@ -206,7 +249,7 @@ class Board(QFrame):
             self.draw_square(painter, rect.left() + pos[0] * self.square_width(),
                              boardtop + pos[1] * self.square_height(), color)
 
-            # drawing square
+        self.colorCurrentSnake()
 
     def draw_square(self, painter, x, y, color):
         # color
@@ -662,7 +705,7 @@ class Board(QFrame):
 
 class IntervalTimer(Thread):
 
-    def __init__(self, secs, func, statusbar):
+    def __init__(self, secs, func, statusbar, numPlayers, numSnakes, snakes):
         super(IntervalTimer, self).__init__(target=func)
 
         self.__interval = secs
@@ -671,13 +714,24 @@ class IntervalTimer(Thread):
         self.reset = False
         self.counter = 0
         self.statusbar = statusbar
+        self.numTeams = numPlayers
+        self.snakes = snakes
+
+        self.Message1 = 0
+        self.Message2 = 0
+        self.Message3 = 0
+        self.Message4 = 0
+
+        self.Message = ""
+
 
     def run(self):
         while not self.__exiting:
             # time.sleep(self.__interval)
             self.reset = False
             while not self.reset:
-                self.statusbar.emit(str(self.counter))
+                self.check()
+                self.statusbar.emit("Time for turn: " + str(self.counter) + "  " + self.Message)
                 time.sleep(1)
                 self.counter = self.counter + 1
                 if self.counter == 5:
@@ -687,6 +741,29 @@ class IntervalTimer(Thread):
     def cancel(self):
         self.__exiting = True
 
+
+    def check(self):
+        self.Message1 = 0
+        self.Message2 = 0
+        self.Message3 = 0
+        self.Message4 = 0
+
+        for i in range(len(self.snakes)):
+            if self.snakes[i].Team == 0:
+                self.Message1 += len(self.snakes[i].Position)
+            elif self.snakes[i].Team == 1:
+                self.Message2 += len(self.snakes[i].Position)
+            elif self.snakes[i].Team == 2:
+                self.Message3 += len(self.snakes[i].Position)
+            elif self.snakes[i].Team == 3:
+                self.Message4 += len(self.snakes[i].Position)
+
+        if self.Message3 == 0:
+            self.Message = "TEAM1 : " + str(self.Message1) + " TEAM2 : " + str(self.Message2)
+        elif self.Message4 == 0:
+            self.Message = "TEAM1 : " + str(self.Message1) + " TEAM2 : " + str(self.Message2) + " TEAM3 : " + str(self.Message3)
+        else:
+            self.Message = "TEAM1 : " + str(self.Message1) + " TEAM2 : " + str(self.Message2) + " TEAM3 : " + str(self.Message3) + " TEAM4 : " + str(self.Message4)
 
 # main method
 if __name__ == '__main__':
