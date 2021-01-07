@@ -161,7 +161,10 @@ class Board(QFrame):
     # paint event
 
     def colorCurrentSnake(self):
-        curSnake = self.snakes[self.TurnCounter]
+        try:
+            curSnake = self.snakes[self.TurnCounter]
+        except:
+            return
         painter = QPainter(self)
         rect = self.contentsRect()
         boardtop = rect.bottom() - Board.HEIGHTINBLOCKS * self.square_height()
