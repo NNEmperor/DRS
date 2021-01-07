@@ -750,13 +750,13 @@ class IntervalTimer(Thread):
 
         for i in range(len(self.snakes)):
             if self.snakes[i].Team == 0:
-                self.Message1 += len(self.snakes[i].Position)
+                self.Message1 += len(self.snakes[i].Position)-2
             elif self.snakes[i].Team == 1:
-                self.Message2 += len(self.snakes[i].Position)
+                self.Message2 += len(self.snakes[i].Position)-2
             elif self.snakes[i].Team == 2:
-                self.Message3 += len(self.snakes[i].Position)
+                self.Message3 += len(self.snakes[i].Position)-2
             elif self.snakes[i].Team == 3:
-                self.Message4 += len(self.snakes[i].Position)
+                self.Message4 += len(self.snakes[i].Position)-2
 
         if self.Message3 == 0:
             self.Message = "TEAM1 : " + str(self.Message1) + " TEAM2 : " + str(self.Message2)
