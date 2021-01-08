@@ -278,6 +278,15 @@ class Board(QFrame):
     def keyPressEvent(self, event):
         if not self.GAME_OVER:
             snake = self.snakes[self.TurnCounter]
+
+            cant_move, new_team = self.is_surrounded(snake)  # poziva logiku opkoljivanja
+
+            if cant_move:
+                print("pre klika provereno")
+                self.snakes.remove(snake)  # brisemo tu zmiju
+                print("tim koji je opkolio: " + str(new_team))
+                self.add_new_snake(new_team)
+
             valid_move = False
             # getting key pressed
             key = event.key()
@@ -325,224 +334,195 @@ class Board(QFrame):
                     self.game_over()
 
                 # ----------------------------
-
-                cant_move = False
-                # ako zmija gleda DESNO
-                # print("udje")
-                # izdvajanje zmija iz drugih timova
-                other_teams = []
-
-                # kom ce timu pripadati , koji su opkolili
-                u_teams = []
-
-                new_snake_team = -1
-
-                for s in self.snakes:
-                    if s.Team != snake.Team:
-                        other_teams.append(s)
-
-                if snake.Direction == 2:
-                    #   print("udje DESNO" + str(snake.Team))
-                    potencijalno1 = snake.Position[0][0] + 1  # x koor +1 PRAVO
-                    potencijalno2 = snake.Position[0][1] + 1  # y koor dole
-                    potencijalno3 = snake.Position[0][1] - 1  # y koor gore
-                    """
-                    print("poz curr" + str(snake.Position[0][0]) + " po1: " + str(potencijalno1))
-                    print("poz curr" + str(snake.Position[0][1]) + " po2: " + str(potencijalno2))
-                    print("poz curr" + str(snake.Position[0][1]) + " po3: " + str(potencijalno3))
-                    print("--------------------------------------")
-                    """
-
-                    # if self.is_surrounded(potencijalno1, potencijalno2, potencijalno3, other_teams):
-                    first_pos = False
-                    second_pos = False
-                    third_pos = False
-
-                    for index_snake in range(len(other_teams)):
-                        if [potencijalno1, snake.Position[0][1]] in other_teams[index_snake].Position:
-                            first_pos = True
-                            u_teams.append(other_teams[index_snake].Team)
-                            print("1 poz")
-                        if [snake.Position[0][0], potencijalno2] in other_teams[index_snake].Position:
-                            second_pos = True
-                            u_teams.append(other_teams[index_snake].Team)
-                            print("2 poz")
-                        if [snake.Position[0][0], potencijalno3] in other_teams[index_snake].Position:
-                            third_pos = True
-                            u_teams.append(other_teams[index_snake].Team)
-                            print("3 poz")
-
-                    if first_pos and second_pos and third_pos:
-                        # jeste opkoljena
-                        cant_move = True
-                        new_snake_team = max(set(u_teams), key=u_teams.count)
-                        print("OPKOLJEN")
-                    print("--------------------------------------")
-
-                    # levo kad gleda
-                if snake.Direction == 1:
-                    potencijalno1 = snake.Position[0][0] - 1  # x koor -1 PRAVO
-                    potencijalno2 = snake.Position[0][1] + 1  # y koor dole
-                    potencijalno3 = snake.Position[0][1] - 1  # y koor gore
-
-                    """
-                    print("LEVO")
-                    print("poz curr" + str(snake.Position[0][0]) + " po1: " + str(potencijalno1))
-                    print("poz curr" + str(snake.Position[0][1]) + " po2: " + str(potencijalno2))
-                    print("poz curr" + str(snake.Position[0][1]) + " po3: " + str(potencijalno3))
-                    """
-
-                    # if self.is_surrounded(potencijalno1, potencijalno2, potencijalno3, other_teams):
-
-                    first_pos = False
-                    second_pos = False
-                    third_pos = False
-
-                    for index_snake in range(len(other_teams)):
-                        if [potencijalno1, snake.Position[0][1]] in other_teams[index_snake].Position:
-                            first_pos = True
-                            u_teams.append(other_teams[index_snake].Team)
-                            print("1 poz")
-                        if [snake.Position[0][0], potencijalno2] in other_teams[index_snake].Position:
-                            second_pos = True
-                            u_teams.append(other_teams[index_snake].Team)
-                            print("2 poz")
-                        if [snake.Position[0][0], potencijalno3] in other_teams[index_snake].Position:
-                            third_pos = True
-                            u_teams.append(other_teams[index_snake].Team)
-                            print("3 poz")
-
-                    if first_pos and second_pos and third_pos:
-                        # jeste opkoljena
-                        cant_move = True
-                        new_snake_team = max(set(u_teams), key=u_teams.count)
-                        print("OPKOLJEN")
-                    print("--------------------------------------")
-
-                    # gore
-                if snake.Direction == 4:
-                    potencijalno1 = snake.Position[0][0] + 1  # x koor +1 PRAVO
-                    potencijalno2 = snake.Position[0][0] - 1  # x koor -1 PRAVO
-                    potencijalno3 = snake.Position[0][1] - 1  # y koor dole         MOZDA -
-                    # potencijalno3 = snake.Position[0][1] - 1  # y koor gore
-
-                    """
-                    print("GORE")
-                    print("poz curr" + str(snake.Position[0][0]) + " po1: " + str(potencijalno1))
-                    print("poz curr" + str(snake.Position[0][0]) + " po2: " + str(potencijalno2))
-                    print("poz curr" + str(snake.Position[0][1]) + " po3: " + str(potencijalno3))
-
-                    """
-
-                    # if self.is_surrounded(potencijalno1, potencijalno2, potencijalno3, other_teams):
-                    first_pos = False
-                    second_pos = False
-                    third_pos = False
-
-                    for index_snake in range(len(other_teams)):
-                        if [potencijalno1, snake.Position[0][1]] in other_teams[index_snake].Position:
-                            first_pos = True
-                            u_teams.append(other_teams[index_snake].Team)
-                            print("1 poz")
-                        if [potencijalno2, snake.Position[0][1]] in other_teams[index_snake].Position:
-                            second_pos = True
-                            u_teams.append(other_teams[index_snake].Team)
-                            print("2 poz")
-                        if [snake.Position[0][0], potencijalno3] in other_teams[index_snake].Position:
-                            third_pos = True
-                            u_teams.append(other_teams[index_snake].Team)
-                            print("3 poz")
-
-                    if first_pos and second_pos and third_pos:
-                        # jeste opkoljena
-                        cant_move = True
-                        new_snake_team = max(set(u_teams), key=u_teams.count)
-                        print("OPKOLJEN")
-                    print("--------------------------------------")
-                    # DOLE
-                if snake.Direction == 3:
-                    potencijalno1 = snake.Position[0][0] + 1  # x koor +1 PRAVO
-                    potencijalno2 = snake.Position[0][0] - 1  # x koor -1 PRAVO
-                    potencijalno3 = snake.Position[0][1] + 1  # y koor dole
-                    # potencijalno3 = snake.Position[0][1] - 1  # y koor gore
-                    """
-                    print("DOLE")
-                    print("poz curr" + str(snake.Position[0][0]) + " po1: " + str(potencijalno1))
-                    print("poz curr" + str(snake.Position[0][0]) + " po2: " + str(potencijalno2))
-                    print("poz curr" + str(snake.Position[0][1]) + " po3: " + str(potencijalno3))
-"""
-                    # if self.is_surrounded(potencijalno1, potencijalno2, potencijalno3, other_teams):
-                    first_pos = False
-                    second_pos = False
-                    third_pos = False
-
-                    for index_snake in range(len(other_teams)):
-                        if [potencijalno1, snake.Position[0][1]] in other_teams[index_snake].Position:
-                            first_pos = True
-                            u_teams.append(other_teams[index_snake].Team)
-                            print("1 poz")
-                        if [potencijalno2, snake.Position[0][1]] in other_teams[index_snake].Position:
-                            second_pos = True
-                            u_teams.append(other_teams[index_snake].Team)
-                            print("2 poz")
-                        if [snake.Position[0][0], potencijalno3] in other_teams[index_snake].Position:
-                            third_pos = True
-                            u_teams.append(other_teams[index_snake].Team)
-                            print("3 poz")
-
-                    if first_pos and second_pos and third_pos:
-                        # jeste opkoljena
-                        cant_move = True
-                        new_snake_team = max(set(u_teams), key=u_teams.count)
-                        print("OPKOLJEN")
+                cant_move, new_team = self.is_surrounded(snake)  # poziva logiku opkoljivanja
 
                 if cant_move:
                     self.snakes.remove(snake)  # brisemo tu zmiju
-                    print("tim koji je opkolio: " + str(new_snake_team))
+                    print("tim koji je opkolio: " + str(new_team))
+                    self.add_new_snake(new_team)
 
-                    """
-                    prvi=[[3, 2 + 2 * position_number], [2, 2 + 2 * position_number]]
+    def add_new_snake(self, new_team):
+        # dodavanje nove zmije
+        position_of_snakes = []
+        print("--------------------")
+        for index_snake in range(len(self.snakes)):
+            position_of_snakes.append(self.snakes[index_snake].Position)
+            print(position_of_snakes)
+            print(self.snakes[index_snake].Position)
+        print("--------------------")
+        print("**************************")
+        print(position_of_snakes)
+        print("$$$$$$$$$$$$$$$$$")
+        print(position_of_snakes[0])
+        for i in range(4):
+            # for index_snake in range(len(self.snakes)):
+            if new_team == 0:
+                if [self.new_snake[0][0 + i * 4], self.new_snake[0][1 + i * 4]] not in position_of_snakes[0]:
+                    self.snakes.append(
+                        Snake.Snake([self.new_snake[0][0 + i * 4], self.new_snake[0][1 + i * 4]], 2,
+                                    Board.WIDTHINBLOCKS, Board.HEIGHTINBLOCKS, new_team))
+                    break
+            if new_team == 1:
+                if [self.new_snake[1][0 + i * 4], self.new_snake[1][1 + i * 4]] not in position_of_snakes[0]:
+                    self.snakes.append(
+                        Snake.Snake([self.new_snake[1][0 + i * 4], self.new_snake[1][1 + i * 4]], 2,
+                                    Board.WIDTHINBLOCKS,
+                                    Board.HEIGHTINBLOCKS, new_team))
+                    break
+            if new_team == 2:
+                if [self.new_snake[2][0 + i * 4], self.new_snake[2][1 + i * 4]] not in position_of_snakes[0]:
+                    self.snakes.append(
+                        Snake.Snake([self.new_snake[2][0 + i * 4], self.new_snake[2][1 + i * 4]], 1,
+                                    Board.WIDTHINBLOCKS,
+                                    Board.HEIGHTINBLOCKS, new_team))
+                    break
+            if new_team == 3:
+                if [self.new_snake[3][0 + i * 4], self.new_snake[3][1 + i * 4]] not in position_of_snakes[0]:
+                    self.snakes.append(
+                        Snake.Snake([self.new_snake[3][0 + i * 4], self.new_snake[3][1 + i * 4]], 1,
+                                    Board.WIDTHINBLOCKS,
+                                    Board.HEIGHTINBLOCKS, new_team))
+                    break
+        # snanew_snake_team = -1
+        # u_teams.clear()  # cisti se lista timova, da ne bi posle doslo do zbrke
 
-                    drugi=[[3, 37 - 2 * position_number], [2, 37 - 2 * position_number]]
+    def is_surrounded(self, snake):
 
-                    treci=[[56, 2 + 2 * position_number], [57, 2 + 2 * position_number]]
-                    cetvrti=[[56, 37 - 2 * position_number], [57, 37 - 2 * position_number]]
-                     """
+        # izdvajanje zmija iz drugih timova
+        other_teams = []
 
-                    # dodavanje nove zmije
-                    for i in range(4):
-                        #for index_snake in range(len(self.snakes)):
-                        if new_snake_team == 0:
-                            if [self.new_snake[0][0 + i * 4], self.new_snake[0][1 + i * 4]] not in self.snakes[index_snake].Position:
-                                self.snakes.append(
-                                    Snake.Snake([self.new_snake[0][0 + i * 4], self.new_snake[0][1 + i * 4]], 2,
-                                                Board.WIDTHINBLOCKS, Board.HEIGHTINBLOCKS, new_snake_team))
-                                break
-                        if new_snake_team == 1:
-                            if [self.new_snake[1][0 + i * 4], self.new_snake[1][1 + i * 4]] not in self.snakes[index_snake].Position:
-                                self.snakes.append(
-                                    Snake.Snake([self.new_snake[1][0 + i * 4], self.new_snake[1][1 + i * 4]], 2,
-                                                Board.WIDTHINBLOCKS,
-                                                Board.HEIGHTINBLOCKS, new_snake_team))
-                                break
-                        if new_snake_team == 2:
-                            if [self.new_snake[2][0 + i * 4], self.new_snake[2][1 + i * 4]] not in self.snakes[index_snake].Position:
-                                self.snakes.append(
-                                    Snake.Snake([self.new_snake[2][0 + i * 4], self.new_snake[2][1 + i * 4]], 1,
-                                                Board.WIDTHINBLOCKS,
-                                                Board.HEIGHTINBLOCKS, new_snake_team))
-                                break
-                        if new_snake_team == 3:
-                            if [self.new_snake[3][0 + i * 4], self.new_snake[3][1 + i * 4]] not in self.snakes[index_snake].Position:
-                                self.snakes.append(
-                                    Snake.Snake([self.new_snake[3][0 + i * 4], self.new_snake[3][1 + i * 4]], 1,
-                                                Board.WIDTHINBLOCKS,
-                                                Board.HEIGHTINBLOCKS, new_snake_team))
-                                break
+        # kom ce timu pripadati , koji su opkolili
+        u_teams = []
 
-                    u_teams.clear()  # cisti se lista timova, da ne bi posle doslo do zbrke
+        for s in self.snakes:
+            if s.Team != snake.Team:
+                other_teams.append(s)
 
+        first_pos = False
+        second_pos = False
+        third_pos = False
 
+        if snake.Direction == 2:
+            #   print("udje DESNO" + str(snake.Team))
+            potencijalno1 = snake.Position[0][0] + 1  # x koor +1 PRAVO
+            potencijalno2 = snake.Position[0][1] + 1  # y koor dole
+            potencijalno3 = snake.Position[0][1] - 1  # y koor gore
+            """
+            print("poz curr" + str(snake.Position[0][0]) + " po1: " + str(potencijalno1))
+            print("poz curr" + str(snake.Position[0][1]) + " po2: " + str(potencijalno2))
+            print("poz curr" + str(snake.Position[0][1]) + " po3: " + str(potencijalno3))
+            print("--------------------------------------")
+            """
+
+            for index_snake in range(len(other_teams)):
+                if [potencijalno1, snake.Position[0][1]] in other_teams[index_snake].Position:
+                    first_pos = True
+                    u_teams.append(other_teams[index_snake].Team)
+                    print("1 poz")
+                if [snake.Position[0][0], potencijalno2] in other_teams[index_snake].Position:
+                    second_pos = True
+                    u_teams.append(other_teams[index_snake].Team)
+                    print("2 poz")
+                if [snake.Position[0][0], potencijalno3] in other_teams[index_snake].Position:
+                    third_pos = True
+                    u_teams.append(other_teams[index_snake].Team)
+                    print("3 poz")
+
+            # levo kad gleda
+        if snake.Direction == 1:
+            potencijalno1 = snake.Position[0][0] - 1  # x koor -1 PRAVO
+            potencijalno2 = snake.Position[0][1] + 1  # y koor dole
+            potencijalno3 = snake.Position[0][1] - 1  # y koor gore
+
+            """
+            print("LEVO")
+            print("poz curr" + str(snake.Position[0][0]) + " po1: " + str(potencijalno1))
+            print("poz curr" + str(snake.Position[0][1]) + " po2: " + str(potencijalno2))
+            print("poz curr" + str(snake.Position[0][1]) + " po3: " + str(potencijalno3))
+            """
+
+            for index_snake in range(len(other_teams)):
+                if [potencijalno1, snake.Position[0][1]] in other_teams[index_snake].Position:
+                    first_pos = True
+                    u_teams.append(other_teams[index_snake].Team)
+                    print("1 poz")
+                if [snake.Position[0][0], potencijalno2] in other_teams[index_snake].Position:
+                    second_pos = True
+                    u_teams.append(other_teams[index_snake].Team)
+                    print("2 poz")
+                if [snake.Position[0][0], potencijalno3] in other_teams[index_snake].Position:
+                    third_pos = True
+                    u_teams.append(other_teams[index_snake].Team)
+                    print("3 poz")
+
+            # gore
+        if snake.Direction == 4:
+            potencijalno1 = snake.Position[0][0] + 1  # x koor +1 PRAVO
+            potencijalno2 = snake.Position[0][0] - 1  # x koor -1 PRAVO
+            potencijalno3 = snake.Position[0][1] - 1  # y koor dole         MOZDA -
+            # potencijalno3 = snake.Position[0][1] - 1  # y koor gore
+
+            """
+            print("GORE")
+            print("poz curr" + str(snake.Position[0][0]) + " po1: " + str(potencijalno1))
+            print("poz curr" + str(snake.Position[0][0]) + " po2: " + str(potencijalno2))
+            print("poz curr" + str(snake.Position[0][1]) + " po3: " + str(potencijalno3))
+
+            """
+            for index_snake in range(len(other_teams)):
+                if [potencijalno1, snake.Position[0][1]] in other_teams[index_snake].Position:
+                    first_pos = True
+                    u_teams.append(other_teams[index_snake].Team)
+                    print("1 poz")
+                if [potencijalno2, snake.Position[0][1]] in other_teams[index_snake].Position:
+                    second_pos = True
+                    u_teams.append(other_teams[index_snake].Team)
+                    print("2 poz")
+                if [snake.Position[0][0], potencijalno3] in other_teams[index_snake].Position:
+                    third_pos = True
+                    u_teams.append(other_teams[index_snake].Team)
+                    print("3 poz")
+
+            # DOLE
+        if snake.Direction == 3:
+            potencijalno1 = snake.Position[0][0] + 1  # x koor +1 PRAVO
+            potencijalno2 = snake.Position[0][0] - 1  # x koor -1 PRAVO
+            potencijalno3 = snake.Position[0][1] + 1  # y koor dole
+            # potencijalno3 = snake.Position[0][1] - 1  # y koor gore
+            """
+            print("DOLE")
+            print("poz curr" + str(snake.Position[0][0]) + " po1: " + str(potencijalno1))
+            print("poz curr" + str(snake.Position[0][0]) + " po2: " + str(potencijalno2))
+            print("poz curr" + str(snake.Position[0][1]) + " po3: " + str(potencijalno3))
+"""
+
+            for index_snake in range(len(other_teams)):
+                if [potencijalno1, snake.Position[0][1]] in other_teams[index_snake].Position:
+                    first_pos = True
+                    u_teams.append(other_teams[index_snake].Team)
+                    print("1 poz")
+                if [potencijalno2, snake.Position[0][1]] in other_teams[index_snake].Position:
+                    second_pos = True
+                    u_teams.append(other_teams[index_snake].Team)
+                    print("2 poz")
+                if [snake.Position[0][0], potencijalno3] in other_teams[index_snake].Position:
+                    third_pos = True
+                    u_teams.append(other_teams[index_snake].Team)
+                    print("3 poz")
+
+        cant_move = False
+        new_team = -1
+
+        # nakon nekog ifa koji god direction da je bio provera
+        if first_pos and second_pos and third_pos:
+            # self.snakes.remove(snake)  # brisemo tu zmiju
+            # jeste opkoljena
+            cant_move = True
+            new_team = max(set(u_teams), key=u_teams.count)
+            print("OPKOLJEN")
+
+        u_teams.clear()  # cisti se lista timova, da ne bi posle doslo do zbrke
+        return cant_move, new_team
 
     # time event method
     def timerEvent(self, event):
