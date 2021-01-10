@@ -548,7 +548,8 @@ class Board(QFrame):
             self.update()
             filename = 'sounds/mixkit-falling-game-over-1942.wav'
             winsound.PlaySound(filename, winsound.SND_ASYNC)
-            self.next_turn()
+            self.update()
+            self.intervalTimer.reset = True
             return
         for i in self.wall:
             # if collision found
@@ -559,7 +560,8 @@ class Board(QFrame):
                 self.update()
                 filename = 'sounds/mixkit-falling-game-over-1942.wav'
                 winsound.PlaySound(filename, winsound.SND_ASYNC)
-                self.next_turn()
+                self.update()
+                self.intervalTimer.reset = True
                 return
         # provera da li je zmija udarila u drugu zmiju
         for s in self.snakes:
@@ -572,7 +574,8 @@ class Board(QFrame):
                         self.update()
                         filename = 'sounds/mixkit-falling-game-over-1942.wav'
                         winsound.PlaySound(filename, winsound.SND_ASYNC)
-                        self.next_turn()
+                        self.update()
+                        self.intervalTimer.reset = True
                         return
 
         # ako zmija nije umrla potrebno je promenimo turn counter, ako je izbacena niz se "skupi"
@@ -583,24 +586,22 @@ class Board(QFrame):
             snake.turns_left = len(snake.Position)
             if snake.Grow_snake:
                 snake.turns_left = snake.turns_left + 1
-        self.next_turn()
+        self.update()
+        self.intervalTimer.reset = True
 
     #ako istekne 5 sekundi, potez se automatski odigra tako sto se zmija pomeri u trenutnom pravcu
     def timeout(self):
         snake = self.snakes[self.TurnCounter]
+        cant_move, new_team = self.is_surrounded(snake)  # poziva logiku opkoljivanja
+        if cant_move:
+            self.snakes.remove(snake)  # brisemo tu zmiju
+            print("tim koji je opkolio: " + str(new_team))
+            self.add_new_snake(new_team)
         snake.move_snake()
         self.is_food_collision()
         self.death()
         if len(self.snakes) == 0:
             self.game_over()
-
-    #bilo bi dobro da kada istekne timer pozove neku posebnu funkciju, a da se ova promeni u iskljcivo bojenje zmije, turn counter se menja u death
-    def next_turn(self):
-        # self.change_snake_color(0x228B22, self.TurnCounter)
-        # self.TurnCounter = (self.TurnCounter + 1) % len(self.snakes)
-        self.update()
-        self.intervalTimer.reset = True
-        # self.change_snake_color(0xe342f5, self.TurnCounter)
 
     def game_over(self):
         self.GAME_OVER = True
