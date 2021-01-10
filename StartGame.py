@@ -8,6 +8,8 @@ import winsound
 import Snake
 import time
 from threading import Thread
+from network import Network
+from ast import literal_eval
 
 
 # creating game window
@@ -127,12 +129,24 @@ class Board(QFrame):
         self.intervalTimer = IntervalTimer(5, self.timeout, self.msg2statusbar, self.NumPlayers, self.NumSnakes, self.snakes)
         self.intervalTimer.start()
 
+
         # food list
         self.food = []
 
         # called drop food method
         for i in range((len(self.snakes) / 2).__round__()):
             self.drop_food()
+
+        self.net = Network()
+        if int(self.net.id) == 0:
+            temp = str(self.food)
+            self.net.client.send(str.encode(temp))
+        else:
+            temp = self.net.client.recv(2048).decode()
+            self.food = literal_eval(temp)
+
+        thread = Thread(target=self.process_received_move, args=())
+        thread.start()
 
         # setting focus
         self.setFocusPolicy(Qt.StrongFocus)
@@ -275,12 +289,32 @@ class Board(QFrame):
 
         # key press event
 
+    def process_received_move(self):
+        while True:
+            received = self.net.client.recv(2048).decode()
+            snake = self.snakes[self.TurnCounter]
+            snake.Direction = int(received)
+            print(int(received))
+            cant_move, new_team = self.is_surrounded(snake)  # poziva logiku opkoljivanja
+            if cant_move:
+                self.snakes.remove(snake)  # brisemo tu zmiju
+                print("tim koji je opkolio: " + str(new_team))
+                self.add_new_snake(new_team)
+            snake.move_snake()
+            self.is_food_collision()
+            received = self.net.client.recv(2048).decode()
+            self.food = literal_eval(received)
+            self.death()
+            if len(self.snakes) == 0:
+                self.game_over()
+
     def keyPressEvent(self, event):
         if not self.GAME_OVER:
             snake = self.snakes[self.TurnCounter]
+            if snake.Team != int(self.net.id):
+                return
 
             cant_move, new_team = self.is_surrounded(snake)  # poziva logiku opkoljivanja
-
             if cant_move:
                 print("pre klika provereno")
                 self.snakes.remove(snake)  # brisemo tu zmiju
@@ -329,6 +363,10 @@ class Board(QFrame):
             # call move snake method
             if valid_move:
                 self.is_food_collision()
+                temp = str(snake.Direction)
+                self.net.client.send(str.encode(temp))
+                temp = str(self.food)
+                self.net.client.send(str.encode(temp))
                 self.death()
                 if len(self.snakes) == 0:
                     self.game_over()
@@ -524,21 +562,6 @@ class Board(QFrame):
         u_teams.clear()  # cisti se lista timova, da ne bi posle doslo do zbrke
         return cant_move, new_team
 
-    # time event method
-    def timerEvent(self, event):
-        """
-        # checking timer id
-        if event.timerId() == self.timer.timerId():
-            # call move snake method
-            self.move_snake()
-            # call food collision method
-            self.is_food_collision()
-            # call is suicide method
-            self.is_suicide()
-            # update the window
-            self.update()
-        """
-
     def death(self):
         snake = self.snakes[self.TurnCounter]
         if snake.suicide():
@@ -592,6 +615,7 @@ class Board(QFrame):
     #ako istekne 5 sekundi, potez se automatski odigra tako sto se zmija pomeri u trenutnom pravcu
     def timeout(self):
         snake = self.snakes[self.TurnCounter]
+        # if snake.Team == self.net.id:
         cant_move, new_team = self.is_surrounded(snake)  # poziva logiku opkoljivanja
         if cant_move:
             self.snakes.remove(snake)  # brisemo tu zmiju
@@ -599,6 +623,11 @@ class Board(QFrame):
             self.add_new_snake(new_team)
         snake.move_snake()
         self.is_food_collision()
+        # slanje tog poteza, ali mora prvo da se sinhronizuju tajmeri da bi imalo smisla
+        # temp = str(snake.Direction)
+        # self.net.client.send(temp.encode())
+        # temp = str(self.food)
+        # self.net.client.send(temp.encode())
         self.death()
         if len(self.snakes) == 0:
             self.game_over()
@@ -718,7 +747,8 @@ class IntervalTimer(Thread):
                 self.statusbar.emit("Time for turn: " + str(self.counter) + "  " + self.Message)
                 time.sleep(1)
                 self.counter = self.counter + 1
-                if self.counter == 5:
+                # povecao sam tajmer da bi imali vremena da popalimo sve apps
+                if self.counter == 20:
                     self.__func()
             self.counter = 0
 
