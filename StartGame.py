@@ -41,7 +41,7 @@ class Window(QMainWindow):
         self.setGeometry(100, 100, 600, 400)
 
         # starting the board object // za sada ne trb
-        #self.board.start()
+        # self.board.start()
 
         oImage = QImage("images/grass_template2.jpg")  # POZADINA
         sImage = oImage.scaled((QSize(900, 900)))
@@ -103,22 +103,40 @@ class Board(QFrame):
             self.all_pos.append([56, 37 - 2 * position_number])
             self.all_pos.append([57, 37 - 2 * position_number])
 
-        #set Snakes
+        # set Snakes
         for i in range(numSnakes):
             for j in range(numPlayers):
                 if j == 0:
-                    self.snakes.append(Snake.Snake([[3, 20 + 2 * i], [2, 20 + 2 * i]], 2, Board.WIDTHINBLOCKS, Board.HEIGHTINBLOCKS, j))
+                    self.snakes.append(
+                        Snake.Snake([[3, 20 + 2 * i], [2, 20 + 2 * i]], 2, Board.WIDTHINBLOCKS, Board.HEIGHTINBLOCKS,
+                                    j))
                 if j == 1:
-                    self.snakes.append(Snake.Snake([[3, 17 - 2 * i], [2, 17 - 2 * i]], 2, Board.WIDTHINBLOCKS, Board.HEIGHTINBLOCKS, j))
+                    self.snakes.append(
+                        Snake.Snake([[3, 17 - 2 * i], [2, 17 - 2 * i]], 2, Board.WIDTHINBLOCKS, Board.HEIGHTINBLOCKS,
+                                    j))
                 if j == 2:
-                    self.snakes.append(Snake.Snake([[56, 2 + 2 * i], [57, 2 + 2 * i]], 1, Board.WIDTHINBLOCKS, Board.HEIGHTINBLOCKS, j))
+                    self.snakes.append(
+                        Snake.Snake([[56, 2 + 2 * i], [57, 2 + 2 * i]], 1, Board.WIDTHINBLOCKS, Board.HEIGHTINBLOCKS,
+                                    j))
                 if j == 3:
-                    self.snakes.append(Snake.Snake([[56, 37 - 2 * i], [57, 37 - 2 * i]], 1, Board.WIDTHINBLOCKS, Board.HEIGHTINBLOCKS, j))
+                    self.snakes.append(
+                        Snake.Snake([[56, 37 - 2 * i], [57, 37 - 2 * i]], 1, Board.WIDTHINBLOCKS, Board.HEIGHTINBLOCKS,
+                                    j))
 
         self.TurnCounter = 0
+        self.turns = 0
+        self.surpriseOn = False
+        self.effectOn = False
+        self.surpriseSpot = [10, 10]
+        self.effectSpot = []
+        for i in range(-1, 2):
+            for j in range(-1, 2):
+                self.effectSpot.append([self.surpriseSpot[0] + i, self.surpriseSpot[1] + j])
+
+        self.surprisePositive = True
 
         # wall
-        self.wall = [[0, 0], [0, 1], [0, 2], [0, 3]]
+        self.wall = []
         for i in range(Board.WIDTHINBLOCKS):
             for j in range(Board.HEIGHTINBLOCKS):
                 if i == 0 or j == 0:
@@ -126,9 +144,9 @@ class Board(QFrame):
                 elif i == Board.WIDTHINBLOCKS - 1 or j == Board.HEIGHTINBLOCKS - 1:
                     self.wall.append([i, j])
 
-        self.intervalTimer = IntervalTimer(5, self.timeout, self.msg2statusbar, self.NumPlayers, self.NumSnakes, self.snakes)
+        self.intervalTimer = IntervalTimer(5, self.timeout, self.msg2statusbar, self.NumPlayers, self.NumSnakes,
+                                           self.snakes)
         self.intervalTimer.start()
-
 
         # food list
         self.food = []
@@ -212,8 +230,6 @@ class Board(QFrame):
                 self.draw_square(painter, rect.left() + pos[0] * self.square_width(),
                                  boardtop + pos[1] * self.square_height(), color)
 
-
-
     def paintEvent(self, event):
 
         # creating painter object
@@ -266,6 +282,17 @@ class Board(QFrame):
             self.draw_square(painter, rect.left() + pos[0] * self.square_width(),
                              boardtop + pos[1] * self.square_height(), color)
 
+        if self.surpriseOn:
+            color = QColor(0xFFA500)
+            self.draw_square(painter, rect.left() + self.surpriseSpot[0] * self.square_width(),
+                             self.surpriseSpot[1] + 10 * self.square_height(), color)
+
+        if self.effectOn:
+            for pos in self.effectSpot:
+                color = QColor(0xFFA500)
+                self.draw_square(painter, rect.left() + pos[0] * self.square_width(),
+                                 boardtop + pos[1] * self.square_height(), color)
+
         self.colorCurrentSnake()
 
     def draw_square(self, painter, x, y, color):
@@ -293,8 +320,10 @@ class Board(QFrame):
         while True:
             received = self.net.client.recv(2048).decode()
             snake = self.snakes[self.TurnCounter]
-            snake.Direction = int(received)
-            print(int(received))
+
+            temp = received.split(";")
+            snake.Direction = int(temp[0])
+            print(int(temp[0]))
             cant_move, new_team = self.is_surrounded(snake)  # poziva logiku opkoljivanja
             if cant_move:
                 self.snakes.remove(snake)  # brisemo tu zmiju
@@ -302,8 +331,24 @@ class Board(QFrame):
                 self.add_new_snake(new_team)
             snake.move_snake()
             self.is_food_collision()
-            received = self.net.client.recv(2048).decode()
-            self.food = literal_eval(received)
+
+            self.food = literal_eval(temp[1])
+            # if not self.surpriseOn:
+            #    self.surprisePositive = literal_eval(temp[2])
+            #    self.surpriseSpot = literal_eval(temp[3])
+            #    self.effectSpot = []
+            #    for i in range(-1, 2):
+            #        for j in range(-1, 2):
+            #            self.effectSpot.append([self.surpriseSpot[0] + i, self.surpriseSpot[1] + j])
+            # received = self.net.client.recv(2048).decode()
+            # self.food = literal_eval(received)
+
+            # received = self.net.client.recv(2048).decode()
+            # self.surprisePositive = literal_eval(received)
+
+            # received = self.net.client.recv(2048).decode()
+            # self.surpriseSpot = literal_eval(received)
+
             self.death()
             if len(self.snakes) == 0:
                 self.game_over()
@@ -363,10 +408,27 @@ class Board(QFrame):
             # call move snake method
             if valid_move:
                 self.is_food_collision()
-                temp = str(snake.Direction)
+
+                #self.surprisePositive = random.choice([True, False])
+                #self.surpriseSpot = [random.randint(3, 57), random.randint(3, 37)]
+                temp = str(snake.Direction) + ";" + str(self.food) + ";" + str(self.surprisePositive) + ";" + str(
+                    self.surpriseSpot)
+
                 self.net.client.send(str.encode(temp))
-                temp = str(self.food)
-                self.net.client.send(str.encode(temp))
+
+                # temp = str(snake.Direction)
+                # self.net.client.send(str.encode(temp))
+                # temp = str(self.food)
+                # self.net.client.send(str.encode(temp))
+
+                # self.surprisePositive = random.choice([True, False])
+                # temp = str(self.surprisePositive)
+                # self.net.client.send(str.encode(temp))
+
+                # self.surpriseSpot = [random.randint(3, 57), random.randint(3, 37)]
+                # temp = str(self.surpriseSpot)
+                # self.net.client.send(str.encode(temp))
+
                 self.death()
                 if len(self.snakes) == 0:
                     self.game_over()
@@ -606,13 +668,39 @@ class Board(QFrame):
         snake.turns_left = snake.turns_left - 1
         if snake.turns_left == 0:
             self.TurnCounter = (self.TurnCounter + 1) % len(self.snakes)
+            self.turns = self.turns + 1
+            if self.turns == 5:
+                self.surpriseOn = True
+                self.turns = 0
+            elif self.turns == 1 and self.surpriseOn:
+                self.effectOn = True
+            elif self.turns == 2 and self.surpriseOn:
+                self.surpriseOn = False
+                self.effectOn = False
+                self.turns == 0
+                self.surprise()
+
             snake.turns_left = len(snake.Position)
             if snake.Grow_snake:
                 snake.turns_left = snake.turns_left + 1
         self.update()
         self.intervalTimer.reset = True
 
-    #ako istekne 5 sekundi, potez se automatski odigra tako sto se zmija pomeri u trenutnom pravcu
+    def surprise(self):
+        for s in self.snakes:
+            for i in s.Position:
+                for j in self.effectSpot:
+                    if i == j:
+                        if self.surprisePositive:
+                            s.Grow_snake = True
+                        else:
+                            self.snakes.remove(s)
+                            if self.TurnCounter + 1 == len(self.snakes):
+                                self.TurnCounter = 0
+                            self.update()
+                            return
+
+    # ako istekne 5 sekundi, potez se automatski odigra tako sto se zmija pomeri u trenutnom pravcu
     def timeout(self):
         snake = self.snakes[self.TurnCounter]
         # if snake.Team == self.net.id:
@@ -653,16 +741,15 @@ class Board(QFrame):
                 # grow the snake
                 snake.Grow_snake = True
             teams_left = []
-            #kod za pomeranje kada svaki igrac pomeri barem jednu zmiju
-            #for snake in self.snakes:
+            # kod za pomeranje kada svaki igrac pomeri barem jednu zmiju
+            # for snake in self.snakes:
             #    if snake.Team not in teams_left:
             #        teams_left.append(snake.Team)
-            #if (self.TurnCounter + 1) % len(teams_left) == 0:
+            # if (self.TurnCounter + 1) % len(teams_left) == 0:
             #    self.move_food()
             if self.TurnCounter + 1 == len(self.snakes):
                 if self.snakes[self.TurnCounter].turns_left == 1:
                     self.move_food()
-
 
     # method to drop food on screen
     def drop_food(self):
@@ -704,12 +791,12 @@ class Board(QFrame):
                 for j in range(random.randint(1, 3)):
                     potencijalno = (self.food[i][0] + random.choice([-1, 1])) % self.WIDTHINBLOCKS
                     # if ~self.snake.__contains__([potencijalno, self.food[i][1]]):
-                   # for snake in self.snakes:
+                    # for snake in self.snakes:
                     na_poziciji = False
                     for index_snake in range(len(self.snakes)):
-                        #if [potencijalno, self.food[i][1]] not in self.snakes[index_snake].Position:
+                        # if [potencijalno, self.food[i][1]] not in self.snakes[index_snake].Position:
                         if [potencijalno, self.food[i][1]] in self.snakes[index_snake].Position:
-                            na_poziciji= True
+                            na_poziciji = True
                     if not na_poziciji:
                         if [potencijalno, self.food[i][1]] not in self.all_pos:  # pocetne pozicije
                             if [potencijalno, self.food[i][1]] not in self.wall:
@@ -737,7 +824,6 @@ class IntervalTimer(Thread):
 
         self.Message = ""
 
-
     def run(self):
         while not self.__exiting:
             # time.sleep(self.__interval)
@@ -748,13 +834,12 @@ class IntervalTimer(Thread):
                 time.sleep(1)
                 self.counter = self.counter + 1
                 # povecao sam tajmer da bi imali vremena da popalimo sve apps
-                if self.counter == 20:
+                if self.counter == 15:
                     self.__func()
             self.counter = 0
 
     def cancel(self):
         self.__exiting = True
-
 
     def check(self):
         self.Message1 = 0
@@ -764,23 +849,19 @@ class IntervalTimer(Thread):
 
         for i in range(len(self.snakes)):
             if self.snakes[i].Team == 0:
-                self.Message1 += len(self.snakes[i].Position)-2
+                self.Message1 += len(self.snakes[i].Position) - 2
             elif self.snakes[i].Team == 1:
-                self.Message2 += len(self.snakes[i].Position)-2
+                self.Message2 += len(self.snakes[i].Position) - 2
             elif self.snakes[i].Team == 2:
-                self.Message3 += len(self.snakes[i].Position)-2
+                self.Message3 += len(self.snakes[i].Position) - 2
             elif self.snakes[i].Team == 3:
-                self.Message4 += len(self.snakes[i].Position)-2
+                self.Message4 += len(self.snakes[i].Position) - 2
 
         if self.Message3 == 0:
             self.Message = "TEAM1 : " + str(self.Message1) + " TEAM2 : " + str(self.Message2)
         elif self.Message4 == 0:
-            self.Message = "TEAM1 : " + str(self.Message1) + " TEAM2 : " + str(self.Message2) + " TEAM3 : " + str(self.Message3)
+            self.Message = "TEAM1 : " + str(self.Message1) + " TEAM2 : " + str(self.Message2) + " TEAM3 : " + str(
+                self.Message3)
         else:
-            self.Message = "TEAM1 : " + str(self.Message1) + " TEAM2 : " + str(self.Message2) + " TEAM3 : " + str(self.Message3) + " TEAM4 : " + str(self.Message4)
-
-# main method
-if __name__ == '__main__':
-    app = QApplication([])
-    window = Window()
-    sys.exit(app.exec_())
+            self.Message = "TEAM1 : " + str(self.Message1) + " TEAM2 : " + str(self.Message2) + " TEAM3 : " + str(
+                self.Message3) + " TEAM4 : " + str(self.Message4)
