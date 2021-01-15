@@ -3,12 +3,12 @@ from _thread import *
 import sys
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-server = 'localhost'
-port = 5555
+#s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+server = ''
+port = 4200
 
 server_ip = socket.gethostbyname(server)
-
+print(server_ip)
 try:
     s.bind((server, port))
 
@@ -33,17 +33,16 @@ def threaded_client(sock, player):
     reply = ''
     while True:
         try:
-            for i in range(2):
-                data = sock.recv(2048)
-                reply = data.decode('utf-8')
-                if not data:
-                    sock.send(str.encode("Goodbye"))
-                    break
-                else:
-                    print("Received: " + reply)
-                    for s in sockets:
-                        if s != sock:
-                            s.sendall(data)
+            data = sock.recv(2048)
+            reply = data.decode('utf-8')
+            if not data:
+                sock.send(str.encode("Goodbye"))
+                break
+            else:
+                print("Received: " + reply)
+                for s in sockets:
+                    if s != sock:
+                        s.sendall(data)
         except:
             break
 

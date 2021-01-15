@@ -333,13 +333,13 @@ class Board(QFrame):
             self.is_food_collision()
 
             self.food = literal_eval(temp[1])
-            # if not self.surpriseOn:
-            #    self.surprisePositive = literal_eval(temp[2])
-            #    self.surpriseSpot = literal_eval(temp[3])
-            #    self.effectSpot = []
-            #    for i in range(-1, 2):
-            #        for j in range(-1, 2):
-            #            self.effectSpot.append([self.surpriseSpot[0] + i, self.surpriseSpot[1] + j])
+            if not self.surpriseOn:
+                self.surprisePositive = literal_eval(temp[2])
+                self.surpriseSpot = literal_eval(temp[3])
+                self.effectSpot = literal_eval(temp[4])
+                #for i in range(-1, 2):
+                #    for j in range(-1, 2):
+                #        self.effectSpot.append([self.surpriseSpot[0] + i, self.surpriseSpot[1] + j])
             # received = self.net.client.recv(2048).decode()
             # self.food = literal_eval(received)
 
@@ -409,10 +409,16 @@ class Board(QFrame):
             if valid_move:
                 self.is_food_collision()
 
-                #self.surprisePositive = random.choice([True, False])
-                #self.surpriseSpot = [random.randint(3, 57), random.randint(3, 37)]
+                if not self.surpriseOn:
+                    self.surprisePositive = random.choice([True, False])
+                    self.surpriseSpot = [random.randint(3, 57), random.randint(3, 37)]
+                    self.effectSpot = []
+                    for i in range(-1, 2):
+                        for j in range(-1, 2):
+                            self.effectSpot.append([self.surpriseSpot[0] + i, self.surpriseSpot[1] + j])
+
                 temp = str(snake.Direction) + ";" + str(self.food) + ";" + str(self.surprisePositive) + ";" + str(
-                    self.surpriseSpot)
+                        self.surpriseSpot) + ";" + str(self.effectSpot)
 
                 self.net.client.send(str.encode(temp))
 
