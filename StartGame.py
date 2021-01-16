@@ -718,7 +718,9 @@ class Board(QFrame):
 
         message = "Winner is team  " + winner_color
         self.msg2statusbar.emit(str("Game Ended. ") + message)
-        self.setStyleSheet("background-color : black;")
+        self.setStyleSheet("background-color:#800000")
+        filename = 'sounds/mixkit-completion-of-a-level-2063.wav'
+        winsound.PlaySound(filename, winsound.SND_ASYNC)
         self.update()
 
     def is_food_collision(self):
