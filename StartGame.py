@@ -706,7 +706,17 @@ class Board(QFrame):
     def game_over(self):
         self.GAME_OVER = True
         self.intervalTimer.cancel()
-        message = "Winner is team " + str(self.winner + 1)
+        winner_color = ''
+        if self.winner == 0:
+            winner_color = 'GREEN'
+        elif self.winner == 1:
+            winner_color = 'BLUE'
+        elif self.winner == 2:
+            winner_color = 'RED'
+        else:
+            winner_color = 'YELLOW'
+
+        message = "Winner is team  " + winner_color
         self.msg2statusbar.emit(str("Game Ended. ") + message)
         self.setStyleSheet("background-color : black;")
         self.update()
@@ -838,38 +848,13 @@ class IntervalTimer(Thread):
         self.__exiting = True
 
     def check(self):
-        """
-        self.Message1 = 0
-        self.Message2 = 0
-        self.Message3 = 0
-        self.Message4 = 0
 
-
-        for i in range(len(self.snakes)):
-            if self.snakes[i].Team == 0:
-                self.Message1 += len(self.snakes[i].Position) - 2
-            elif self.snakes[i].Team == 1:
-                self.Message2 += len(self.snakes[i].Position) - 2
-            elif self.snakes[i].Team == 2:
-                self.Message3 += len(self.snakes[i].Position) - 2
-            elif self.snakes[i].Team == 3:
-                self.Message4 += len(self.snakes[i].Position) - 2
-
-        if self.Message3 == 0:
-            self.Message = "TEAM1 : " + str(self.Message1) + " TEAM2 : " + str(self.Message2)
-        elif self.Message4 == 0:
-            self.Message = "TEAM1 : " + str(self.Message1) + " TEAM2 : " + str(self.Message2) + " TEAM3 : " + str(
-                self.Message3)
-        else:
-            self.Message = "TEAM1 : " + str(self.Message1) + " TEAM2 : " + str(self.Message2) + " TEAM3 : " + str(
-                self.Message3) + " TEAM4 : " + str(self.Message4)
-        """
         if self.numTeams == 2:
-            self.Message = "TEAM1 : " + str(self.scores[0]) + " TEAM2 : " + str(self.scores[1])
+            self.Message = "teams GREEN : " + str(self.scores[0]) + " BLUE : " + str(self.scores[1])
         elif self.numTeams == 3:
-            self.Message = "TEAM1 : " + str(self.scores[0]) + " TEAM2 : " + str(self.scores[1]) + " TEAM3 : " + str(
+            self.Message = "teams GREEN : " + str(self.scores[0]) + " BLUE : " + str(self.scores[1]) + " RED :" + str(
                 self.scores[2])
         elif self.numTeams == 4:
-            self.Message = "TEAM1 : " + str(self.scores[0]) + " TEAM2 : " + str(self.scores[1]) + " TEAM3 : " + str(
-                self.scores[2]) + " TEAM4 : " + str(self.scores[3])
+            self.Message = "teams GREEN : " + str(self.scores[0]) + " BLUE : " + str(self.scores[1]) + " RED : " + str(
+                self.scores[2]) + " YELLOW : " + str(self.scores[3])
 
