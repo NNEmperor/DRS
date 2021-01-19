@@ -597,6 +597,25 @@ class Board(QFrame):
         u_teams.clear()  # cisti se lista timova, da ne bi posle doslo do zbrke
         return cant_move, new_team
 
+    def createEndGameWindow(self):
+        master = Tk()
+        master.withdraw()
+
+        pop = Toplevel(master)
+        pop.title("GAME OVER")
+        pop.geometry("450x250")
+        pop.config(bg="#3B1E08")
+        pop_label = Label(pop, text="You lost", bg="#3B1E08", fg="gold",
+                          font=("Lucida Handwriting", 40))
+        pop_label.pack(pady=20)
+
+        # frame = Frame(pop, bg="#3B1E08")
+        # frame.pack(pady=5)
+        # dead = PhotoImage(Image.open(file="images/dead-snake.jpg"))
+        # pic = Label(frame, image=dead, borderwidth=0)
+
+        pop.mainloop()
+
     def death(self):
         self.count = 0
         snake = self.snakes[self.TurnCounter]
@@ -616,23 +635,7 @@ class Board(QFrame):
                         if ssnake.Team == snake.Team:
                             self.count += 1
                     if self.count == 0:
-                        master = Tk()
-                        master.withdraw()
-
-                        pop = Toplevel(master)
-                        pop.title("GAME OVER")
-                        pop.geometry("450x250")
-                        pop.config(bg="#3B1E08")
-                        pop_label = Label(pop, text="You lost", bg="#3B1E08", fg="gold",
-                                          font=("Lucida Handwriting", 40))
-                        pop_label.pack(pady=20)
-
-                        # frame = Frame(pop, bg="#3B1E08")
-                        # frame.pack(pady=5)
-                        # dead = PhotoImage(Image.open(file="images/dead-snake.jpg"))
-                        # pic = Label(frame, image=dead, borderwidth=0)
-
-                        pop.mainloop()
+                        self.createEndGameWindow()
 
             return
         for i in self.wall:
@@ -653,23 +656,7 @@ class Board(QFrame):
                             if ssnake.Team == snake.Team:
                                 self.count += 1
                         if self.count == 0:
-                            master = Tk()
-                            master.withdraw()
-
-                            pop = Toplevel(master)
-                            pop.title("GAME OVER")
-                            pop.geometry("450x250")
-                            pop.config(bg="#3B1E08")
-                            pop_label = Label(pop, text="You lost", bg="#3B1E08", fg="gold",
-                                              font=("Lucida Handwriting", 40))
-                            pop_label.pack(pady=20)
-
-                            # frame = Frame(pop, bg="#3B1E08")
-                            # frame.pack(pady=5)
-                            # dead = PhotoImage(Image.open(file="images/dead-snake.jpg"))
-                            # pic = Label(frame, image=dead, borderwidth=0)
-
-                            pop.mainloop()
+                            self.createEndGameWindow()
 
                 return
         # provera da li je zmija udarila u drugu zmiju
@@ -692,23 +679,7 @@ class Board(QFrame):
                                     if ssnake.Team == snake.Team:
                                         self.count += 1
                                 if self.count == 0:
-                                    master = Tk()
-                                    master.withdraw()
-
-                                    pop = Toplevel(master)
-                                    pop.title("GAME OVER")
-                                    pop.geometry("450x250")
-                                    pop.config(bg="#3B1E08")
-                                    pop_label = Label(pop, text="You lost", bg="#3B1E08", fg="gold",
-                                                      font=("Lucida Handwriting", 40))
-                                    pop_label.pack(pady=20)
-
-                                    # frame = Frame(pop, bg="#3B1E08")
-                                    # frame.pack(pady=5)
-                                    # dead = PhotoImage(Image.open(file="images/dead-snake.jpg"))
-                                    # pic = Label(frame, image=dead, borderwidth=0)
-
-                                    pop.mainloop()
+                                    self.createEndGameWindow()
 
                         return
 
@@ -798,24 +769,8 @@ class Board(QFrame):
         filename = 'sounds/mixkit-completion-of-a-level-2063.wav'
         winsound.PlaySound(filename, winsound.SND_ASYNC)
         snake = self.snakes[self.TurnCounter]
-        if int(self.net.id) == snake.Team:
-            master = Tk()
-            master.withdraw()
-
-            pop = Toplevel(master)
-            pop.title("GAME OVER")
-            pop.geometry("450x250")
-            pop.config(bg="#3B1E08")
-            pop_label = Label(pop, text="You lost", bg="#3B1E08", fg="gold",
-                            font=("Lucida Handwriting", 40))
-            pop_label.pack(pady=20)
-
-            # frame = Frame(pop, bg="#3B1E08")
-            # frame.pack(pady=5)
-            # dead = PhotoImage(Image.open(file="images/dead-snake.jpg"))
-            # pic = Label(frame, image=dead, borderwidth=0)
-
-            pop.mainloop()
+        if int(self.net.id) != snake.Team:
+            self.createEndGameWindow()
 
         self.update()
 
@@ -895,17 +850,17 @@ class Board(QFrame):
                                 self.food[i][0] = potencijalno
 
     def oneTeamLeft(self):
-        teams = []
-        for s in self.snakes:
-            if s.Team not in teams:
-                teams.append(s.Team)
+        if not self.GAME_OVER:
+            teams = []
+            for s in self.snakes:
+                if s.Team not in teams:
+                    teams.append(s.Team)
 
-        if len(teams) == 1:
-            self.winner = teams[0]
-            return True
-        else:
-
-            return False
+            if len(teams) == 1:
+                self.winner = teams[0]
+                return True
+            else:
+                return False
 
 
 class IntervalTimer(Thread):
