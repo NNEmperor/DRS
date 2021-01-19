@@ -598,7 +598,7 @@ class Board(QFrame):
         return cant_move, new_team
 
     def death(self):
-        count = 0
+        self.count = 0
         snake = self.snakes[self.TurnCounter]
         if snake.suicide():
             if self.TurnCounter + 1 == len(self.snakes):
@@ -609,28 +609,30 @@ class Board(QFrame):
             winsound.PlaySound(filename, winsound.SND_ASYNC)
             self.update()
             self.intervalTimer.reset = True
-            if int(self.net.id) == snake.Team:
-                for ssnake in self.snakes:
-                    if ssnake.Team == snake.Team:
-                        count += 1
-                if count == 0:
-                    master = Tk()
-                    master.withdraw()
-                    pop = Toplevel(master)
-                    pop.title("GAME OVER")
-                    pop.geometry("450x250")
-                    pop.config(bg="#3B1E08")
-                    pop_label = Label(pop, text="You lost", bg="#3B1E08", fg="gold",
-                                      font=("Lucida Handwriting", 40))
-                    pop_label.pack(pady=20)
 
-                    frame = Frame(pop, bg="#3B1E08")
-                    frame.pack(pady=5)
+            if not self.oneTeamLeft():
+                if int(self.net.id) == snake.Team:
+                    for ssnake in self.snakes:
+                        if ssnake.Team == snake.Team:
+                            self.count += 1
+                    if self.count == 0:
+                        master = Tk()
+                        master.withdraw()
 
-                    # dead = PhotoImage(Image.open(file="images/dead-snake.jpg"))
-                    # pic = Label(frame, image=dead, borderwidth=0)
+                        pop = Toplevel(master)
+                        pop.title("GAME OVER")
+                        pop.geometry("450x250")
+                        pop.config(bg="#3B1E08")
+                        pop_label = Label(pop, text="You lost", bg="#3B1E08", fg="gold",
+                                          font=("Lucida Handwriting", 40))
+                        pop_label.pack(pady=20)
 
-                    pop.mainloop()
+                        # frame = Frame(pop, bg="#3B1E08")
+                        # frame.pack(pady=5)
+                        # dead = PhotoImage(Image.open(file="images/dead-snake.jpg"))
+                        # pic = Label(frame, image=dead, borderwidth=0)
+
+                        pop.mainloop()
 
             return
         for i in self.wall:
@@ -644,29 +646,31 @@ class Board(QFrame):
                 winsound.PlaySound(filename, winsound.SND_ASYNC)
                 self.update()
                 self.intervalTimer.reset = True
-                if int(self.net.id) == snake.Team:
-                    for ssnake in self.snakes:
-                        if ssnake.Team == snake.Team:
-                            count += 1
-                    if count == 0:
-                        master = Tk()
-                        master.withdraw()
-                        pop = Toplevel(master)
-                        pop.title("GAME OVER")
-                        pop.geometry("450x250")
-                        pop.config(bg="#3B1E08")
-                        pop_label = Label(pop, text="You lost", bg="#3B1E08", fg="gold",
-                                          font=("Lucida Handwriting", 40))
-                        pop_label.pack(pady=20)
 
-                        frame = Frame(pop, bg="#3B1E08")
-                        frame.pack(pady=5)
+                if not self.oneTeamLeft():
+                    if int(self.net.id) == snake.Team:
+                        for ssnake in self.snakes:
+                            if ssnake.Team == snake.Team:
+                                self.count += 1
+                        if self.count == 0:
+                            master = Tk()
+                            master.withdraw()
 
-                        #dead = PhotoImage(Image.open(file="images/dead-snake.jpg"))
-                        #pic = Label(frame, image=dead, borderwidth=0)
+                            pop = Toplevel(master)
+                            pop.title("GAME OVER")
+                            pop.geometry("450x250")
+                            pop.config(bg="#3B1E08")
+                            pop_label = Label(pop, text="You lost", bg="#3B1E08", fg="gold",
+                                              font=("Lucida Handwriting", 40))
+                            pop_label.pack(pady=20)
 
+                            # frame = Frame(pop, bg="#3B1E08")
+                            # frame.pack(pady=5)
+                            # dead = PhotoImage(Image.open(file="images/dead-snake.jpg"))
+                            # pic = Label(frame, image=dead, borderwidth=0)
 
-                        pop.mainloop()
+                            pop.mainloop()
+
                 return
         # provera da li je zmija udarila u drugu zmiju
         for s in self.snakes:
@@ -681,28 +685,30 @@ class Board(QFrame):
                         winsound.PlaySound(filename, winsound.SND_ASYNC)
                         self.update()
                         self.intervalTimer.reset = True
-                        if int(self.net.id) == snake.Team:
-                            for ssnake in self.snakes:
-                                if ssnake.Team == snake.Team:
-                                    count += 1
-                            if count == 0:
-                                master = Tk()
-                                master.withdraw()
-                                pop = Toplevel(master)
-                                pop.title("GAME OVER")
-                                pop.geometry("450x250")
-                                pop.config(bg="#3B1E08")
-                                pop_label = Label(pop, text="You lost", bg="#3B1E08", fg="gold",
-                                                  font=("Lucida Handwriting", 40))
-                                pop_label.pack(pady=20)
 
-                                frame = Frame(pop, bg="#3B1E08")
-                                frame.pack(pady=5)
+                        if not self.oneTeamLeft():
+                            if int(self.net.id) == snake.Team:
+                                for ssnake in self.snakes:
+                                    if ssnake.Team == snake.Team:
+                                        self.count += 1
+                                if self.count == 0:
+                                    master = Tk()
+                                    master.withdraw()
 
-                                # dead = PhotoImage(Image.open(file="images/dead-snake.jpg"))
-                                # pic = Label(frame, image=dead, borderwidth=0)
+                                    pop = Toplevel(master)
+                                    pop.title("GAME OVER")
+                                    pop.geometry("450x250")
+                                    pop.config(bg="#3B1E08")
+                                    pop_label = Label(pop, text="You lost", bg="#3B1E08", fg="gold",
+                                                      font=("Lucida Handwriting", 40))
+                                    pop_label.pack(pady=20)
 
-                                pop.mainloop()
+                                    # frame = Frame(pop, bg="#3B1E08")
+                                    # frame.pack(pady=5)
+                                    # dead = PhotoImage(Image.open(file="images/dead-snake.jpg"))
+                                    # pic = Label(frame, image=dead, borderwidth=0)
+
+                                    pop.mainloop()
 
                         return
 
@@ -791,6 +797,26 @@ class Board(QFrame):
         self.setStyleSheet("background-color:#800000")
         filename = 'sounds/mixkit-completion-of-a-level-2063.wav'
         winsound.PlaySound(filename, winsound.SND_ASYNC)
+        snake = self.snakes[self.TurnCounter]
+        if int(self.net.id) == snake.Team:
+            master = Tk()
+            master.withdraw()
+
+            pop = Toplevel(master)
+            pop.title("GAME OVER")
+            pop.geometry("450x250")
+            pop.config(bg="#3B1E08")
+            pop_label = Label(pop, text="You lost", bg="#3B1E08", fg="gold",
+                            font=("Lucida Handwriting", 40))
+            pop_label.pack(pady=20)
+
+            # frame = Frame(pop, bg="#3B1E08")
+            # frame.pack(pady=5)
+            # dead = PhotoImage(Image.open(file="images/dead-snake.jpg"))
+            # pic = Label(frame, image=dead, borderwidth=0)
+
+            pop.mainloop()
+
         self.update()
 
     def is_food_collision(self):
@@ -878,6 +904,7 @@ class Board(QFrame):
             self.winner = teams[0]
             return True
         else:
+
             return False
 
 
