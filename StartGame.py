@@ -135,6 +135,7 @@ class Board(QFrame):
         self.surpriseSpot = []
         self.effectSpot = []
         self.surprisePositive = True
+        self.isOver = False
 
         # wall
         self.wall = []
@@ -635,7 +636,9 @@ class Board(QFrame):
                         if ssnake.Team == snake.Team:
                             self.count += 1
                     if self.count == 0:
-                        self.createEndGameWindow()
+                        if not self.isOver:
+                            self.isOver = True
+                            self.createEndGameWindow()
 
             return
         for i in self.wall:
@@ -656,7 +659,9 @@ class Board(QFrame):
                             if ssnake.Team == snake.Team:
                                 self.count += 1
                         if self.count == 0:
-                            self.createEndGameWindow()
+                            if not self.isOver:
+                                self.isOver = True
+                                self.createEndGameWindow()
 
                 return
         # provera da li je zmija udarila u drugu zmiju
@@ -679,7 +684,9 @@ class Board(QFrame):
                                     if ssnake.Team == snake.Team:
                                         self.count += 1
                                 if self.count == 0:
-                                    self.createEndGameWindow()
+                                    if not self.isOver:
+                                        self.isOver = True
+                                        self.createEndGameWindow()
 
                         return
 
@@ -770,7 +777,9 @@ class Board(QFrame):
         winsound.PlaySound(filename, winsound.SND_ASYNC)
         snake = self.snakes[self.TurnCounter]
         if int(self.net.id) != snake.Team:
-            self.createEndGameWindow()
+            if not self.isOver:
+                self.isOver = True
+                self.createEndGameWindow()
 
         self.update()
 
