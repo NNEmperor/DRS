@@ -5,6 +5,7 @@ from PyQt5.QtGui import QImage, QPalette, QBrush, QIcon
 import sys
 
 import StartGame
+import tournament
 
 
 class MainWindow(QWidget):
@@ -72,18 +73,26 @@ class MainWindow(QWidget):
         self.startButton = QtWidgets.QPushButton(self)
         self.startButton.setCursor(Qt.PointingHandCursor)
         self.startButton.setText("Start Game")
-        self.startButton.setGeometry(150, 700, 250, 80)
+        self.startButton.setGeometry(150, 700, 250, 50)
         self.startButton.setStyleSheet(
-            "background-color :gold;border:  none;font-family: Lucida Handwriting;font-size: 25px;border-radius:35px")
+            "background-color :gold;border:  none;font-family: Lucida Handwriting;font-size: 25px;border-radius:25px")
         self.startButton.clicked.connect(self.closeMainApp_OpenStartApp)
+
+        self.tournamentButton = QtWidgets.QPushButton(self)
+        self.tournamentButton.setCursor(Qt.PointingHandCursor)
+        self.tournamentButton.setText("Tournament")
+        self.tournamentButton.setGeometry(150, 770, 250, 50)
+        self.tournamentButton.setStyleSheet(
+            "background-color :gold;border:  none;font-family: Lucida Handwriting;font-size: 25px;border-radius:25px")
+        self.tournamentButton.clicked.connect(self.closeMainApp_OpenTournamentApp)
 
         self.exitButton = QtWidgets.QPushButton(self)
         self.exitButton.setCursor(Qt.PointingHandCursor)
         self.exitButton.setText("Quit")
         self.exitButton.clicked.connect(self.closeApp)
-        self.exitButton.setGeometry(500, 700, 250, 80)
+        self.exitButton.setGeometry(500, 700, 250, 50)
         self.exitButton.setStyleSheet(
-            "background-color :gold;border:  none;font-family: Lucida Handwriting;font-size: 25px;border-radius:35px")
+            "background-color :gold;border:  none;font-family: Lucida Handwriting;font-size: 25px;border-radius:25px")
 
     def center(self):
         screen = QDesktopWidget().screenGeometry()
@@ -95,6 +104,12 @@ class MainWindow(QWidget):
         numSnakes = int(self.comboSnakes.currentText())
         self.close()
         self.Open = StartGame.Window(numPlayers, numSnakes)
+        self.Open.show()
+    def closeMainApp_OpenTournamentApp(self):
+        numPlayers = int(self.comboPlayers.currentText())
+        numSnakes = int(self.comboSnakes.currentText())
+        self.close()
+        self.Open = tournament.Tournament_class()
         self.Open.show()
 
     def closeApp(self):
