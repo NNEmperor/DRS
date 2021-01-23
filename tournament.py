@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import sys
 from PyQt5.QtGui import QImage, QPalette, QBrush, QIcon, QPainter
+import StartGame
 
 
 class Tournament_class(QWidget):
@@ -77,7 +78,9 @@ class Tournament_class(QWidget):
 
         # potrebno poslati ili pozvati unutar StartGame igrice
         list_usernames = [self.textboxP1.text(), self.textboxP2.text(), self.textboxP3.text(), self.textboxP4.text()]
-
+        self.close()
+        self.Open = StartGame.Window(2, 1, True, list_usernames)
+        self.Open.show()
         #self.pipe.send(list_usernames)
 
 

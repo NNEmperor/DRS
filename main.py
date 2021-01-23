@@ -80,8 +80,16 @@ class MainWindow(QWidget):
 
         self.tournamentButton = QtWidgets.QPushButton(self)
         self.tournamentButton.setCursor(Qt.PointingHandCursor)
-        self.tournamentButton.setText("Tournament")
+        self.tournamentButton.setText("Host tournament")
         self.tournamentButton.setGeometry(150, 770, 250, 50)
+        self.tournamentButton.setStyleSheet(
+            "background-color :gold;border:  none;font-family: Lucida Handwriting;font-size: 25px;border-radius:25px")
+        self.tournamentButton.clicked.connect(self.closeMainApp_OpenTournamentAppForHost)
+
+        self.tournamentButton = QtWidgets.QPushButton(self)
+        self.tournamentButton.setCursor(Qt.PointingHandCursor)
+        self.tournamentButton.setText("Join tournament")
+        self.tournamentButton.setGeometry(500, 770, 250, 50)
         self.tournamentButton.setStyleSheet(
             "background-color :gold;border:  none;font-family: Lucida Handwriting;font-size: 25px;border-radius:25px")
         self.tournamentButton.clicked.connect(self.closeMainApp_OpenTournamentApp)
@@ -103,13 +111,21 @@ class MainWindow(QWidget):
         numPlayers = int(self.comboPlayers.currentText())
         numSnakes = int(self.comboSnakes.currentText())
         self.close()
-        self.Open = StartGame.Window(numPlayers, numSnakes)
+        self.Open = StartGame.Window(numPlayers, numSnakes, False, 0)
         self.Open.show()
-    def closeMainApp_OpenTournamentApp(self):
+
+    def closeMainApp_OpenTournamentAppForHost(self):
         numPlayers = int(self.comboPlayers.currentText())
         numSnakes = int(self.comboSnakes.currentText())
         self.close()
         self.Open = tournament.Tournament_class()
+        self.Open.show()
+
+    def closeMainApp_OpenTournamentApp(self):
+        numPlayers = int(self.comboPlayers.currentText())
+        numSnakes = int(self.comboSnakes.currentText())
+        self.close()
+        self.Open = StartGame.Window(2, 1, True, 0)
         self.Open.show()
 
     def closeApp(self):
