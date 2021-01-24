@@ -64,6 +64,11 @@ class Tournament_class(QWidget):
         self.textboxP4.resize(120, 30)
         self.textboxP4.setStyleSheet('font-size: 20px;height: 28px;width: 260px;')
 
+        self.textboxP1.setText("A")
+        self.textboxP2.setText("B")
+        self.textboxP3.setText("C")
+        self.textboxP4.setText("D")
+
         self.button = QPushButton('Start Tournament', self)
         self.button.setToolTip('Click to start tournament!')
         self.button.setStyleSheet(

@@ -141,6 +141,7 @@ class Board(QFrame):
         self.effectSpot = []
         self.surprisePositive = True
         self.isOver = False
+        self.tournament_refresh = False
 
         # wall
         self.wall = []
@@ -175,6 +176,11 @@ class Board(QFrame):
 
         self.thread = Thread(target=self.process_received_move, args=())
         self.thread.start()
+
+
+        if tournament:
+            self.tournament_refresh_check_thread = Thread(target=self.tournament_refresh_check, args=())
+            self.tournament_refresh_check_thread.start()
 
         # setting focus
         self.setFocusPolicy(Qt.StrongFocus)
@@ -324,6 +330,75 @@ class Board(QFrame):
                          self.square_height() - 2, color)
 
         # key press event
+
+    def tournament_refresh_check(self):
+        while True:
+            if self.tournament_refresh:
+                self.tournament_refresh = False
+                time.sleep(5)
+                self.tournamentGame = self.tournamentGame + 1
+                self.setStyleSheet("background-color: rgba(255, 255, 255, 0)")
+                self.winner = 0
+                # snakes
+                self.snakes = []
+                self.scores = [0, 0, 0, 0]
+                # kad se opkoli,za pozicije nove zmije
+                self.new_snake = []
+                self.surpriseOn = False
+                self.effectOn = False
+
+                for position_number in range(4):
+                    self.new_snake.append([[3, 2 + 2 * position_number], [2, 2 + 2 * position_number]])
+                    self.new_snake.append([[3, 37 - 2 * position_number], [2, 37 - 2 * position_number]])
+                    self.new_snake.append([[56, 2 + 2 * position_number], [57, 2 + 2 * position_number]])
+                    self.new_snake.append([[56, 37 - 2 * position_number], [57, 37 - 2 * position_number]])
+
+                self.all_pos = []
+                for position_number in range(4):
+                    self.all_pos.append([3, 2 + 2 * position_number])
+                    self.all_pos.append([2, 2 + 2 * position_number])
+                    self.all_pos.append([3, 37 - 2 * position_number])
+                    self.all_pos.append([2, 37 - 2 * position_number])
+                    self.all_pos.append([56, 2 + 2 * position_number])
+                    self.all_pos.append([57, 2 + 2 * position_number])
+                    self.all_pos.append([56, 37 - 2 * position_number])
+                    self.all_pos.append([57, 37 - 2 * position_number])
+
+                # set Snakes
+                for i in range(1):
+                    for j in range(self.NumPlayers):
+                        if j == 0:
+                            self.snakes.append(
+                                Snake.Snake([[3, 20 + 2 * i], [2, 20 + 2 * i]], 2, Board.WIDTHINBLOCKS,
+                                            Board.HEIGHTINBLOCKS,
+                                            j))
+                        if j == 1:
+                            self.snakes.append(
+                                Snake.Snake([[3, 17 - 2 * i], [2, 17 - 2 * i]], 2, Board.WIDTHINBLOCKS,
+                                            Board.HEIGHTINBLOCKS,
+                                            j))
+                        if j == 2:
+                            self.snakes.append(
+                                Snake.Snake([[56, 2 + 2 * i], [57, 2 + 2 * i]], 1, Board.WIDTHINBLOCKS,
+                                            Board.HEIGHTINBLOCKS,
+                                            j))
+                        if j == 3:
+                            self.snakes.append(
+                                Snake.Snake([[56, 37 - 2 * i], [57, 37 - 2 * i]], 1, Board.WIDTHINBLOCKS,
+                                            Board.HEIGHTINBLOCKS,
+                                            j))
+
+                for i in range(self.NumPlayers):
+                    self.scores[i] = 0
+
+                self.TurnCounter = 0
+                self.turns = 0
+                self.GAME_OVER = False
+                self.intervalTimer = IntervalTimer(5, self.timeout, self.msg2statusbar, self.NumPlayers, self.NumSnakes,
+                                                   self.snakes, self.scores)
+                self.intervalTimer.start()
+
+
 
     def process_received_move(self):
         while True:
@@ -804,64 +879,8 @@ class Board(QFrame):
         self.update()
 
         if self.tournament and self.tournamentGame != 2:
-            time.sleep(3)
-            self.tournamentGame = self.tournamentGame + 1
-            self.setStyleSheet("background-color: rgba(255, 255, 255, 0)")
-            self.winner = 0
-            # snakes
-            self.snakes = []
-            self.scores = [0, 0, 0, 0]
-            # kad se opkoli,za pozicije nove zmije
-            self.new_snake = []
-            self.surpriseOn = False
-            self.effectOn = False
+            self.tournament_refresh = True
 
-            for position_number in range(4):
-                self.new_snake.append([[3, 2 + 2 * position_number], [2, 2 + 2 * position_number]])
-                self.new_snake.append([[3, 37 - 2 * position_number], [2, 37 - 2 * position_number]])
-                self.new_snake.append([[56, 2 + 2 * position_number], [57, 2 + 2 * position_number]])
-                self.new_snake.append([[56, 37 - 2 * position_number], [57, 37 - 2 * position_number]])
-
-            self.all_pos = []
-            for position_number in range(4):
-                self.all_pos.append([3, 2 + 2 * position_number])
-                self.all_pos.append([2, 2 + 2 * position_number])
-                self.all_pos.append([3, 37 - 2 * position_number])
-                self.all_pos.append([2, 37 - 2 * position_number])
-                self.all_pos.append([56, 2 + 2 * position_number])
-                self.all_pos.append([57, 2 + 2 * position_number])
-                self.all_pos.append([56, 37 - 2 * position_number])
-                self.all_pos.append([57, 37 - 2 * position_number])
-
-            # set Snakes
-            for i in range(1):
-                for j in range(self.NumPlayers):
-                    if j == 0:
-                        self.snakes.append(
-                            Snake.Snake([[3, 20 + 2 * i], [2, 20 + 2 * i]], 2, Board.WIDTHINBLOCKS, Board.HEIGHTINBLOCKS,
-                                        j))
-                    if j == 1:
-                        self.snakes.append(
-                            Snake.Snake([[3, 17 - 2 * i], [2, 17 - 2 * i]], 2, Board.WIDTHINBLOCKS, Board.HEIGHTINBLOCKS,
-                                        j))
-                    if j == 2:
-                        self.snakes.append(
-                            Snake.Snake([[56, 2 + 2 * i], [57, 2 + 2 * i]], 1, Board.WIDTHINBLOCKS, Board.HEIGHTINBLOCKS,
-                                        j))
-                    if j == 3:
-                        self.snakes.append(
-                            Snake.Snake([[56, 37 - 2 * i], [57, 37 - 2 * i]], 1, Board.WIDTHINBLOCKS, Board.HEIGHTINBLOCKS,
-                                        j))
-
-            for i in range(self.NumPlayers):
-                self.scores[i] = 0
-
-            self.TurnCounter = 0
-            self.turns = 0
-            self.GAME_OVER = False
-            self.intervalTimer = IntervalTimer(5, self.timeout, self.msg2statusbar, self.NumPlayers, self.NumSnakes,
-                                               self.snakes, self.scores)
-            self.intervalTimer.start()
 
     def is_food_collision(self):
         snake = self.snakes[self.TurnCounter]
@@ -944,7 +963,6 @@ class Board(QFrame):
             for s in self.snakes:
                 if s.Team not in teams:
                     teams.append(s.Team)
-
             if len(teams) == 1:
                 self.winner = teams[0]
                 return True
