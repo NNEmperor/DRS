@@ -865,7 +865,7 @@ class Board(QFrame):
             if self.tournamentGame == 2:
                 message = "Tournament winner is player " + str(self.tournamentWinner)
             else:
-                message = "Winner is player " + str(self.tournamentWinners[self.tournamentGame])
+                message = "Winner is player " + str(self.tournamentWinners[self.tournamentGame]+"! Next game soon")
         self.msg2statusbar.emit(str("Game Ended. ") + message)
         self.setStyleSheet("background-color:#800000")
         filename = 'sounds/mixkit-completion-of-a-level-2063.wav'
