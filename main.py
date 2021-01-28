@@ -1,7 +1,12 @@
+import random
+
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QLabel, QComboBox, QMessageBox
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QImage, QPalette, QBrush, QIcon
+from multiprocessing import Process
+from multiprocessing import Queue
+import time
 import sys
 
 import StartGame
@@ -12,10 +17,10 @@ class MainWindow(QWidget):
     MainWindowHeight = 900
     MainWindowWidth = 900
 
-    def __init__(self):
+    def __init__(self, queue):
         super().__init__()
-
         self.initUI()
+        self.q = queue
 
     def initUI(self):
         self.resize(self.MainWindowHeight, self.MainWindowWidth)
@@ -111,21 +116,21 @@ class MainWindow(QWidget):
         numPlayers = int(self.comboPlayers.currentText())
         numSnakes = int(self.comboSnakes.currentText())
         self.close()
-        self.Open = StartGame.Window(numPlayers, numSnakes, False, 0)
+        self.Open = StartGame.Window(numPlayers, numSnakes, False, 0, self.q)
         self.Open.show()
 
     def closeMainApp_OpenTournamentAppForHost(self):
         numPlayers = int(self.comboPlayers.currentText())
         numSnakes = int(self.comboSnakes.currentText())
         self.close()
-        self.Open = tournament.Tournament_class()
+        self.Open = tournament.Tournament_class(self.q)
         self.Open.show()
 
     def closeMainApp_OpenTournamentApp(self):
         numPlayers = int(self.comboPlayers.currentText())
         numSnakes = int(self.comboSnakes.currentText())
         self.close()
-        self.Open = StartGame.Window(2, 1, True, 0)
+        self.Open = StartGame.Window(2, 1, True, 0, self.q)
         self.Open.show()
 
     def closeApp(self):
@@ -145,7 +150,19 @@ class MainWindow(QWidget):
             pass
 
 
+def process_function(q):
+    while True:
+        if q.empty():
+            rnd = [random.randint(3, 57), random.randint(3, 37)]
+            q.put(rnd)
+        #print(rnd)
+        time.sleep(1)
+
+
 if __name__ == '__main__':
+    q = Queue()
+    p = Process(target=process_function, args=(q,))
+    p.start()
     app = QApplication(sys.argv)
-    GUI = MainWindow()
+    GUI = MainWindow(q)
     sys.exit(app.exec_())

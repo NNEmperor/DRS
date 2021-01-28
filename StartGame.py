@@ -16,11 +16,10 @@ from ast import literal_eval
 
 # creating game window
 class Window(QMainWindow):
-    def __init__(self, numPlayers, numSnakes, tournament, listUsernames):
+    def __init__(self, numPlayers, numSnakes, tournament, listUsernames, q):
         super(Window, self).__init__()
-
         # creating a board object
-        self.board = Board(self, numPlayers, numSnakes, tournament, listUsernames)
+        self.board = Board(self, numPlayers, numSnakes, tournament, listUsernames, q)
 
         # creating a status bar to show result
         self.statusbar = self.statusBar()
@@ -72,9 +71,9 @@ class Board(QFrame):
     NumSnakes = 0
 
     # constructor
-    def __init__(self, parent, numPlayers, numSnakes, tournament, listUsernames):
+    def __init__(self, parent, numPlayers, numSnakes, tournament, listUsernames, q):
         super(Board, self).__init__(parent)
-
+        self.queue = q
         # creating a timer
         self.timer = QBasicTimer()
         self.reset_timer = True
@@ -748,7 +747,7 @@ class Board(QFrame):
                 self.turns = 0
             elif self.turns == 3:
                 self.surprisePositive = random.choice([True, False])
-                surpriseSpot = [random.randint(3, 57), random.randint(3, 37)]
+                surpriseSpot = self.queue.get()
                 self.effectSpot = []
                 for i in range(-1, 2):
                     for j in range(-1, 2):

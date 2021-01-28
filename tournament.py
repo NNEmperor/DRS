@@ -6,9 +6,10 @@ import StartGame
 
 
 class Tournament_class(QWidget):
-    def __init__(self):
+    def __init__(self, q):
         super().__init__()
         self.initUI()
+        self.queue = q
 
     def initUI(self):
         self.setWindowTitle('Snake game')
@@ -125,7 +126,7 @@ class Tournament_class(QWidget):
             if not self.check_equal(p1, [p2, p3, p4]) and not self.check_equal(p2, [p1, p3, p4]) and not self.check_equal(p3, [p1, p2, p4]) and not self.check_equal(p4, [p1, p2, p3]):
                 self.labelP.hide()
                 self.close()
-                self.Open = StartGame.Window(2, 1, True, list_usernames)
+                self.Open = StartGame.Window(2, 1, True, list_usernames, self.queue)
                 self.Open.show()
             else:
                 self.labelP.show()
