@@ -141,7 +141,6 @@ class MainWindow(QWidget):
 
         if reply == QMessageBox.Yes:
             app.quit()
-            #event.accept()
         else:
             pass
 

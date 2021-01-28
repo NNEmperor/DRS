@@ -3,7 +3,6 @@ from _thread import *
 import sys
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 server = ''
 port = 4200
 

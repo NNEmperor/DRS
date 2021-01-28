@@ -8,14 +8,12 @@ import StartGame
 class Tournament_class(QWidget):
     def __init__(self):
         super().__init__()
-        # self.setStyleSheet('background-color: rgb(53, 188, 220)')
         self.initUI()
 
     def initUI(self):
         self.setWindowTitle('Snake game')
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setGeometry(400, 150, 700, 512)
-        #self.pipe = main_pipe2
 
         oImage = QImage("images/zmija.jpg")
         sImage = oImage.scaled((QSize(700, 512)))
@@ -64,10 +62,10 @@ class Tournament_class(QWidget):
         self.textboxP4.resize(120, 30)
         self.textboxP4.setStyleSheet('font-size: 20px;height: 28px;width: 260px;background-color:gold;font-family: Lucida Handwriting;')
 
-        self.textboxP1.setText("A")
-        self.textboxP2.setText("B")
-        self.textboxP3.setText("C")
-        self.textboxP4.setText("D")
+        #self.textboxP1.setText("A")
+        #self.textboxP2.setText("B")
+        #self.textboxP3.setText("C")
+        #self.textboxP4.setText("D")
 
         self.button = QPushButton('Start Tournament', self)
         self.button.setToolTip('Click to start tournament!')
@@ -97,8 +95,8 @@ class Tournament_class(QWidget):
         else:
             print(" Your Text : ", text)
             return True
-    def check_equal(self, name, list):
 
+    def check_equal(self, name, list):
         for i in range(3):
             if name == list[i]:
                 return True
@@ -115,13 +113,10 @@ class Tournament_class(QWidget):
             return False
         """
 
-   # @pyqtSlot()
     def tournament(self):
-
         if self.checkstatus(self.textboxP1.text()) and self.checkstatus(self.textboxP2.text()) and self.checkstatus(self.textboxP3.text()) and self.checkstatus(self.textboxP4.text()):
             print("ok")
             self.labelP5.hide()
-            # potrebno poslati ili pozvati unutar StartGame igrice
             p1 = self.textboxP1.text()
             p2 = self.textboxP2.text()
             p3 = self.textboxP3.text()
@@ -132,7 +127,6 @@ class Tournament_class(QWidget):
                 self.close()
                 self.Open = StartGame.Window(2, 1, True, list_usernames)
                 self.Open.show()
-                #self.pipe.send(list_usernames)
             else:
                 self.labelP.show()
 

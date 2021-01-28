@@ -115,11 +115,11 @@ class Board(QFrame):
             for j in range(numPlayers):
                 if j == 0:
                     self.snakes.append(
-                        Snake.Snake([[3, 20 + 2 * i], [2, 20 + 2 * i]], 2, Board.WIDTHINBLOCKS, Board.HEIGHTINBLOCKS,
+                        Snake.Snake([[3, 2 + 2 * i], [2, 2 + 2 * i]], 2, Board.WIDTHINBLOCKS, Board.HEIGHTINBLOCKS,
                                     j))
                 if j == 1:
                     self.snakes.append(
-                        Snake.Snake([[3, 17 - 2 * i], [2, 17 - 2 * i]], 2, Board.WIDTHINBLOCKS, Board.HEIGHTINBLOCKS,
+                        Snake.Snake([[3, 37 - 2 * i], [2, 37 - 2 * i]], 2, Board.WIDTHINBLOCKS, Board.HEIGHTINBLOCKS,
                                     j))
                 if j == 2:
                     self.snakes.append(
@@ -152,8 +152,7 @@ class Board(QFrame):
                 elif i == Board.WIDTHINBLOCKS - 1 or j == Board.HEIGHTINBLOCKS - 1:
                     self.wall.append([i, j])
 
-        self.intervalTimer = IntervalTimer(5, self.timeout, self.msg2statusbar, self.NumPlayers, self.NumSnakes,
-                                           self.snakes, self.scores)
+        self.intervalTimer = IntervalTimer(20, self.timeout, self.msg2statusbar, self.NumPlayers, self.scores)
         self.intervalTimer.start()
 
         # food list
@@ -177,7 +176,6 @@ class Board(QFrame):
         self.thread = Thread(target=self.process_received_move, args=())
         self.thread.start()
 
-
         if tournament:
             self.tournament_refresh_check_thread = Thread(target=self.tournament_refresh_check, args=())
             self.tournament_refresh_check_thread.start()
@@ -185,8 +183,7 @@ class Board(QFrame):
         # setting focus
         self.setFocusPolicy(Qt.StrongFocus)
 
-        # square width method
-
+    # square width method
     def square_width(self):
         return self.contentsRect().width() / Board.WIDTHINBLOCKS
 
@@ -196,15 +193,7 @@ class Board(QFrame):
     # start method
     def start(self):
         # msg for status bar
-        # score = current len - 2
         self.msg2statusbar.emit("SCORE: " + str(len(self.snakeTest.Position) - 2))
-
-        # starting timer
-        # self.timer.start(Board.SPEED, self)         # DA LI MENJATI???
-        # self.timer.start(Board.SPEED, self)         # ZBOG HRANE---BOGINJE
-        # self.timer.start(Board., self)         # DA LI MENJATI??? 2
-
-    # paint event
 
     def colorCurrentSnake(self):
         try:
@@ -244,6 +233,7 @@ class Board(QFrame):
                 self.draw_square(painter, rect.left() + pos[0] * self.square_width(),
                                  boardtop + pos[1] * self.square_height(), color)
 
+    # paint event
     def paintEvent(self, event):
 
         # creating painter object
@@ -329,8 +319,7 @@ class Board(QFrame):
         painter.fillRect(x + 1, y + 1, self.square_width() - 2,
                          self.square_height() - 2, color)
 
-        # key press event
-
+    # key press event
     def tournament_refresh_check(self):
         while True:
             if self.tournament_refresh:
@@ -369,22 +358,12 @@ class Board(QFrame):
                     for j in range(self.NumPlayers):
                         if j == 0:
                             self.snakes.append(
-                                Snake.Snake([[3, 20 + 2 * i], [2, 20 + 2 * i]], 2, Board.WIDTHINBLOCKS,
+                                Snake.Snake([[3, 2 + 2 * i], [2, 2 + 2 * i]], 2, Board.WIDTHINBLOCKS,
                                             Board.HEIGHTINBLOCKS,
                                             j))
                         if j == 1:
                             self.snakes.append(
-                                Snake.Snake([[3, 17 - 2 * i], [2, 17 - 2 * i]], 2, Board.WIDTHINBLOCKS,
-                                            Board.HEIGHTINBLOCKS,
-                                            j))
-                        if j == 2:
-                            self.snakes.append(
-                                Snake.Snake([[56, 2 + 2 * i], [57, 2 + 2 * i]], 1, Board.WIDTHINBLOCKS,
-                                            Board.HEIGHTINBLOCKS,
-                                            j))
-                        if j == 3:
-                            self.snakes.append(
-                                Snake.Snake([[56, 37 - 2 * i], [57, 37 - 2 * i]], 1, Board.WIDTHINBLOCKS,
+                                Snake.Snake([[3, 37 - 2 * i], [2, 37 - 2 * i]], 2, Board.WIDTHINBLOCKS,
                                             Board.HEIGHTINBLOCKS,
                                             j))
 
@@ -394,11 +373,8 @@ class Board(QFrame):
                 self.TurnCounter = 0
                 self.turns = 0
                 self.GAME_OVER = False
-                self.intervalTimer = IntervalTimer(5, self.timeout, self.msg2statusbar, self.NumPlayers, self.NumSnakes,
-                                                   self.snakes, self.scores)
+                self.intervalTimer = IntervalTimer(20, self.timeout, self.msg2statusbar, self.NumPlayers, self.scores)
                 self.intervalTimer.start()
-
-
 
     def process_received_move(self):
         while True:
@@ -421,8 +397,6 @@ class Board(QFrame):
             self.effectSpot = literal_eval(temp[3])
 
             self.death()
-            #if len(self.snakes) == 0:
-            #    self.game_over()
             if self.oneTeamLeft():
                 self.game_over()
 
@@ -486,8 +460,6 @@ class Board(QFrame):
                 self.net.client.send(str.encode(temp))
 
                 self.death()
-                #if len(self.snakes) == 0:
-                #    self.game_over()
                 if self.oneTeamLeft():
                     self.game_over()
                 # ----------------------------
@@ -540,11 +512,8 @@ class Board(QFrame):
                                     Board.WIDTHINBLOCKS,
                                     Board.HEIGHTINBLOCKS, new_team))
                     break
-        # snanew_snake_team = -1
-        # u_teams.clear()  # cisti se lista timova, da ne bi posle doslo do zbrke
 
     def is_surrounded(self, snake):
-
         # izdvajanje zmija iz drugih timova
         other_teams = []
 
@@ -612,7 +581,7 @@ class Board(QFrame):
                     u_teams.append(other_teams[index_snake].Team)
                     print("3 poz")
 
-            # gore
+        # gore
         if snake.Direction == 4:
             potencijalno1 = snake.Position[0][0] + 1  # x koor +1 PRAVO
             potencijalno2 = snake.Position[0][0] - 1  # x koor -1 PRAVO
@@ -640,7 +609,7 @@ class Board(QFrame):
                     u_teams.append(other_teams[index_snake].Team)
                     print("3 poz")
 
-            # DOLE
+        # DOLE
         if snake.Direction == 3:
             potencijalno1 = snake.Position[0][0] + 1  # x koor +1 PRAVO
             potencijalno2 = snake.Position[0][0] - 1  # x koor -1 PRAVO
@@ -692,11 +661,6 @@ class Board(QFrame):
         pop_label = Label(pop, text="You lost", bg="#3B1E08", fg="gold",
                           font=("Lucida Handwriting", 40))
         pop_label.pack(pady=20)
-
-        # frame = Frame(pop, bg="#3B1E08")
-        # frame.pack(pady=5)
-        # dead = PhotoImage(Image.open(file="images/dead-snake.jpg"))
-        # pic = Label(frame, image=dead, borderwidth=0)
 
         pop.mainloop()
 
@@ -779,7 +743,7 @@ class Board(QFrame):
         if snake.turns_left == 0:
             self.TurnCounter = (self.TurnCounter + 1) % len(self.snakes)
             self.turns = self.turns + 1
-            if self.turns == 5:
+            if self.turns == 15:
                 self.surpriseOn = True
                 self.turns = 0
             elif self.turns == 3:
@@ -829,14 +793,7 @@ class Board(QFrame):
             self.add_new_snake(new_team)
         snake.move_snake()
         self.is_food_collision()
-        # slanje tog poteza, ali mora prvo da se sinhronizuju tajmeri da bi imalo smisla
-        # temp = str(snake.Direction)
-        # self.net.client.send(temp.encode())
-        # temp = str(self.food)
-        # self.net.client.send(temp.encode())
         self.death()
-        #if len(self.snakes) == 0:
-        #    self.game_over()
         if self.oneTeamLeft():
             self.game_over()
 
@@ -871,10 +828,6 @@ class Board(QFrame):
         filename = 'sounds/mixkit-completion-of-a-level-2063.wav'
         winsound.PlaySound(filename, winsound.SND_ASYNC)
         snake = self.snakes[self.TurnCounter]
-        #if int(self.net.id) != snake.Team:
-        #    if not self.isOver:
-        #        self.isOver = True
-        #        self.createEndGameWindow()
 
         self.update()
 
@@ -896,12 +849,6 @@ class Board(QFrame):
                 snake.Grow_snake = True
                 self.scores[snake.Team] = self.scores[snake.Team] + 1
             teams_left = []
-            # kod za pomeranje kada svaki igrac pomeri barem jednu zmiju
-            # for snake in self.snakes:
-            #    if snake.Team not in teams_left:
-            #        teams_left.append(snake.Team)
-            # if (self.TurnCounter + 1) % len(teams_left) == 0:
-            #    self.move_food()
             if self.TurnCounter + 1 == len(self.snakes):
                 if self.snakes[self.TurnCounter].turns_left == 1:
                     self.move_food()
@@ -925,7 +872,6 @@ class Board(QFrame):
         self.food.append([x, y])
 
     # pomeranje hrane
-
     def move_food(self):
 
         # for petlja kad bi bilo vise hrane u nizu--treba dodati u food
@@ -972,7 +918,7 @@ class Board(QFrame):
 
 class IntervalTimer(Thread):
 
-    def __init__(self, secs, func, statusbar, numPlayers, numSnakes, snakes, scores):
+    def __init__(self, secs, func, statusbar, numPlayers, scores):
         super(IntervalTimer, self).__init__(target=func)
 
         self.__interval = secs
@@ -982,7 +928,6 @@ class IntervalTimer(Thread):
         self.counter = 0
         self.statusbar = statusbar
         self.numTeams = numPlayers
-        self.snakes = snakes
         self.scores = scores
         self.Message1 = 0
         self.Message2 = 0
@@ -993,15 +938,13 @@ class IntervalTimer(Thread):
 
     def run(self):
         while not self.__exiting:
-            # time.sleep(self.__interval)
             self.reset = False
             while not self.reset:
                 self.check()
                 self.statusbar.emit("Time for turn: " + str(self.counter) + "  " + self.Message)
                 time.sleep(1)
                 self.counter = self.counter + 1
-                # povecao sam tajmer da bi imali vremena da popalimo sve apps
-                if self.counter == 20:
+                if self.counter == self.__interval:
                     self.__func()
             self.counter = 0
 
